@@ -8,6 +8,8 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261011000002_rls_policies.sql` | Row Level Security policies for every table |
 | `migrations/20261011000003_storage.sql` | `photos` Storage bucket and object policies |
 | `migrations/20261011000004_views_and_search.sql` | `dive_site_summaries`, `site_species_sighting_stats`, `search_dive_sites()`, `search_species()` |
+| `migrations/20261011000005_harden_helpers.sql` | Moves role helpers to the non-exposed `private` schema |
+| `migrations/20261011000006_consolidate_policies.sql` | Merges owner/moderator policies into one per action (performance) |
 | `seed.sql` | 10 dive sites, 32 species, 59 site–species links, 32 reference photos (idempotent) |
 
 ## ERD
@@ -126,7 +128,7 @@ erDiagram
 
 ## Row Level Security
 
-All tables have RLS enabled. Helper functions `is_admin()` and `is_moderator()` are `SECURITY DEFINER` with an empty `search_path`.
+All tables have RLS enabled. Helper functions `private.is_admin()` and `private.is_moderator()` are `SECURITY DEFINER` with an empty `search_path`, and live in a `private` schema that PostgREST does not expose.
 
 | Table | Select | Insert | Update | Delete |
 | --- | --- | --- | --- | --- |

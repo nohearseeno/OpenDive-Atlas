@@ -358,8 +358,6 @@ export type Database = {
       };
     };
     Functions: {
-      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
-      is_moderator: { Args: Record<PropertyKey, never>; Returns: boolean };
       search_dive_sites: {
         Args: { q?: string | null; types?: DiveType[] | null; levels?: ExperienceLevel[] | null };
         Returns: DiveSiteSummaryRow[];
