@@ -1,0 +1,175 @@
+# Database
+
+PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in `supabase/`.
+
+| File | Contents |
+| --- | --- |
+| `migrations/20261011000001_core_schema.sql` | Enums, tables, constraints, indexes, triggers (`updated_at`, new-user profile, role & moderation guards) |
+| `migrations/20261011000002_rls_policies.sql` | Row Level Security policies for every table |
+| `migrations/20261011000003_storage.sql` | `photos` Storage bucket and object policies |
+| `migrations/20261011000004_views_and_search.sql` | `dive_site_summaries`, `site_species_sighting_stats`, `search_dive_sites()`, `search_species()` |
+| `seed.sql` | 10 dive sites, 32 species, 59 site–species links, 32 reference photos (idempotent) |
+
+## ERD
+
+```mermaid
+erDiagram
+  AUTH_USERS ||--|| PROFILES : "1:1 (trigger)"
+  PROFILES ||--o{ SIGHTINGS : logs
+  PROFILES ||--o{ REVIEWS : writes
+  PROFILES ||--o{ PHOTOS : uploads
+  PROFILES ||--o{ DIVE_SITES : "created_by / updated_by"
+  DIVE_SITES ||--o{ SITE_SPECIES : has
+  SPECIES ||--o{ SITE_SPECIES : "seen at"
+  DIVE_SITES ||--o{ SIGHTINGS : at
+  SPECIES ||--o{ SIGHTINGS : of
+  SIGHTINGS ||--o{ PHOTOS : includes
+  DIVE_SITES ||--o{ PHOTOS : gallery
+  SPECIES ||--o{ PHOTOS : gallery
+  DIVE_SITES ||--o{ REVIEWS : rated
+
+  PROFILES {
+    uuid id PK "= auth.users.id"
+    text username UK
+    text display_name
+    text bio
+    text avatar_url
+    text home_country
+    text certification_level
+    user_role role "user | moderator | admin"
+  }
+  DIVE_SITES {
+    uuid id PK
+    text slug UK
+    text name
+    text country
+    text region
+    float8 latitude
+    float8 longitude
+    dive_type[] dive_types
+    experience_level experience_level
+    numeric visibility_min_m
+    numeric visibility_max_m
+    numeric temp_min_c
+    numeric temp_max_c
+    numeric max_depth_m
+    current_strength typical_current
+    text description
+    text access_notes
+    bool is_published
+  }
+  SPECIES {
+    uuid id PK
+    text slug UK
+    text common_name
+    text scientific_name UK
+    species_category category
+    text description
+    text iucn_status
+  }
+  SITE_SPECIES {
+    uuid site_id PK,FK
+    uuid species_id PK,FK
+    sighting_frequency frequency
+    text notes
+  }
+  SIGHTINGS {
+    uuid id PK
+    uuid user_id FK
+    uuid site_id FK
+    uuid species_id FK
+    date observed_on
+    int quantity
+    numeric depth_m
+    text notes
+    moderation_status status
+  }
+  PHOTOS {
+    uuid id PK
+    text storage_path UK "photos bucket"
+    text external_url "openly licensed"
+    uuid site_id FK
+    uuid species_id FK
+    uuid sighting_id FK
+    uuid uploaded_by FK
+    text caption
+    text attribution
+    text license
+    text source_url
+    moderation_status status
+  }
+  REVIEWS {
+    uuid id PK
+    uuid site_id FK
+    uuid user_id FK "unique(site_id,user_id)"
+    smallint rating_marine_life "1-5"
+    smallint rating_visibility "1-5"
+    smallint rating_photography "1-5"
+    smallint rating_difficulty "1-5"
+    text body
+    date dived_on
+    moderation_status status
+  }
+```
+
+## Enums
+
+| Enum | Values |
+| --- | --- |
+| `user_role` | user, moderator, admin |
+| `dive_type` | reef, wreck, shore, boat, freshwater, wall, drift, muck, cavern |
+| `experience_level` | beginner, intermediate, advanced |
+| `current_strength` | none, mild, moderate, strong |
+| `species_category` | fish, shark_ray, reptile, mammal, cephalopod, crustacean, mollusc, coral, invertebrate |
+| `sighting_frequency` | rare, occasional, common, abundant |
+| `moderation_status` | pending, approved, rejected |
+
+## Row Level Security
+
+All tables have RLS enabled. Helper functions `is_admin()` and `is_moderator()` are `SECURITY DEFINER` with an empty `search_path`.
+
+| Table | Select | Insert | Update | Delete |
+| --- | --- | --- | --- | --- |
+| profiles | everyone | via signup trigger only | self; admin (any) | — (cascades from auth.users) |
+| dive_sites | published, or admin | admin | admin | admin |
+| species | everyone | admin | admin | admin |
+| site_species | everyone | admin | admin | admin |
+| sightings | approved, own, or moderator | self (`user_id = auth.uid()`) | own; moderator | own; moderator |
+| photos | approved, own, or moderator | self, own storage folder, own sighting; admin (any incl. external URLs) | own; moderator | own; moderator |
+| reviews | approved, own, or moderator | self | own; moderator | own; moderator |
+
+### Guard triggers
+
+- `protect_profile_role` — non-admins cannot change `profiles.role`.
+- `protect_moderated_row` (sightings, photos, reviews) — for non-moderators, forces `status = 'approved'` on insert, keeps `status` unchanged on update, and pins the owner column to `auth.uid()`. Trusted contexts without a JWT subject (SQL editor, migrations, seed) are not affected.
+
+### Storage (`photos` bucket)
+
+- Public bucket (files served by public URL), 10 MiB limit, JPEG/PNG/WebP/AVIF.
+- Upload: authenticated users, only into `<auth.uid()>/…`.
+- Delete/list: owner folder or moderators.
+
+## Read models
+
+- **`dive_site_summaries`** — every `dive_sites` column plus `review_count`, `avg_marine_life`, `avg_visibility`, `avg_photography`, `avg_difficulty`, `avg_overall` (mean of marine life, visibility, photography), `sighting_count`, `species_count`.
+- **`site_species_sighting_stats`** — `(site_id, species_id, sighting_count, last_sighted_on)` from approved sightings.
+- **`search_dive_sites(q, types[], levels[])`** — case-insensitive match on name/country/region; a site matches if it has **any** selected dive type and **any** selected level.
+- **`search_species(q, categories[])`** — matches common or scientific name.
+
+All views use `security_invoker = true`, so RLS of the caller applies.
+
+## Migrations workflow
+
+```bash
+npx supabase migration new add_something   # create a new migration file
+npm run db:reset                           # rebuild local DB from migrations + seed
+npx supabase db lint                       # static checks
+npx supabase link --project-ref <ref>      # once per machine
+npm run db:push                            # apply pending migrations to the remote project
+```
+
+To load the seed into a remote project: `psql "$DATABASE_URL" -f supabase/seed.sql` (the seed is idempotent), or paste it into the Studio SQL editor.
+
+## Seed photos
+
+Reference photos point to Wikimedia Commons via `Special:FilePath`. Run `npm run seed:verify-photos -- --sql photo-credits.sql` to list missing files and generate `UPDATE` statements that fill in the real author and licence for each photo. The UI shows a placeholder for any image that fails to load.
