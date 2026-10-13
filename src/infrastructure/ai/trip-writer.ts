@@ -3,7 +3,14 @@ import { z } from "zod";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { EXPERIENCE_LABELS } from "@/domain/constants";
 import type { TripAiNotes, TripPlan, TripSettings } from "@/domain/itinerary";
+import type { Units } from "@/lib/units";
 import { AI_MODEL, getAnthropic } from "./client";
+
+const UNITS_NOTE: Record<Units, string> = {
+  metric: "Give any depths, visibility and distances in metres or kilometres, and temperatures in °C.",
+  imperial: "The diver uses imperial units: give any depths and visibility in feet, distances in miles and temperatures in °F (convert from the metric values given).",
+};
+
 
 const NotesSchema = z.object({
   overview: z.string().describe("Two or three sentences summarising the trip and its highlights."),
@@ -58,7 +65,11 @@ function describe(plan: TripPlan, settings: TripSettings): string {
 }
 
 /** Asks Claude for local knowledge, seasons and tips on an already-routed trip. */
-export async function writeTripNotes(plan: TripPlan, settings: TripSettings): Promise<TripAiNotes | null> {
+export async function writeTripNotes(
+  plan: TripPlan,
+  settings: TripSettings,
+  units: Units = "metric",
+): Promise<TripAiNotes | null> {
   const response = await getAnthropic().beta.messages.parse({
     model: AI_MODEL,
     max_tokens: 6000,
@@ -66,7 +77,7 @@ export async function writeTripNotes(plan: TripPlan, settings: TripSettings): Pr
     fallbacks: "default",
     output_config: { effort: "low", format: betaZodOutputFormat(NotesSchema) },
     system: SYSTEM,
-    messages: [{ role: "user", content: `<trip>\n${describe(plan, settings)}\n</trip>` }],
+    messages: [{ role: "user", content: `<trip>\n${describe(plan, settings)}\n</trip>\n\n${UNITS_NOTE[units]}` }],
   });
   if (response.stop_reason === "refusal" || !response.parsed_output) return null;
   const out = response.parsed_output;

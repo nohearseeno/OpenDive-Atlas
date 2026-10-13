@@ -6,6 +6,8 @@ import "@fontsource/poppins/600.css";
 import { Toaster } from "sonner";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { UnitsProvider } from "@/components/units/units-provider";
+import { getUnits } from "@/application/units";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -30,7 +32,8 @@ export const viewport: Viewport = {
   themeColor: "#0d1129",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const units = await getUnits();
   return (
     <html lang="en">
       <body className="flex min-h-dvh flex-col font-sans">
@@ -40,11 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        <UnitsProvider initial={units}>
+          <SiteHeader />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
+        </UnitsProvider>
         <Toaster richColors position="top-center" />
       </body>
     </html>

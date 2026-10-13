@@ -15,6 +15,8 @@ import { getSupabaseBrowserClient } from "@/infrastructure/supabase/client";
 import { ACCEPTED_PHOTO_TYPES, MAX_PHOTO_BYTES, MAX_PHOTOS_PER_SIGHTING, PHOTO_BUCKET } from "@/domain/constants";
 import type { SiteOption, SpeciesOption } from "@/domain/entities";
 import { todayIso } from "@/lib/utils";
+import { unitLabel } from "@/lib/units";
+import { useUnits } from "@/components/units/units-provider";
 
 interface PendingPhoto {
   id: string;
@@ -40,6 +42,7 @@ export function SightingForm({
   defaultSpeciesId?: string;
 }) {
   const [state, formAction] = useActionState(createSightingAction, initialActionState);
+  const { units } = useUnits();
   const [isPending, startTransition] = useTransition();
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -151,8 +154,17 @@ export function SightingForm({
         <FormField id="quantity" label="How many?" errors={errors.quantity}>
           <Input id="quantity" name="quantity" type="number" min={1} max={10000} defaultValue={1} inputMode="numeric" />
         </FormField>
-        <FormField id="depthM" label="Depth (m)" hint="Optional" errors={errors.depthM}>
-          <Input id="depthM" name="depthM" type="number" min={0} max={350} step="0.1" inputMode="decimal" />
+        <FormField id="depthM" label={`Depth (${unitLabel("length", units)})`} hint="Optional" errors={errors.depthM}>
+          <input type="hidden" name="units" value={units} />
+          <Input
+            id="depthM"
+            name="depthM"
+            type="number"
+            min={0}
+            max={units === "metric" ? 350 : 1150}
+            step="0.1"
+            inputMode="decimal"
+          />
         </FormField>
       </div>
       <FormField id="notes" label="Notes" hint="Behaviour, size, where on the site… (optional)" errors={errors.notes}>

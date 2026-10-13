@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RecommendForm } from "@/components/recommend/recommend-form";
 import { clearRecommendationHistoryAction, type RecommendState } from "@/application/actions/recommendations";
 import { getSessionUser } from "@/application/session";
+import { getUnits } from "@/application/units";
 import { searchDiveSites } from "@/infrastructure/repositories/dive-sites";
 import {
   getCachedRecommendation,
@@ -50,7 +51,7 @@ export default async function RecommendPage({ searchParams }: { searchParams: Pr
         stored = entry.result;
       }
     } else if (query.trim().length >= 8) {
-      stored = await getCachedRecommendation(query);
+      stored = await getCachedRecommendation(query, await getUnits());
     }
     if (stored) initialResult = { status: "ok", query, ...hydrate(stored, await searchDiveSites(db)) };
     if (user) history = await listRecommendationHistory(db);

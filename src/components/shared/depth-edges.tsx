@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { UnitText } from "@/components/units/measure";
 
 /*
  * Section transitions that follow a dive from the surface to the seabed.
@@ -19,10 +20,11 @@ const SLOPE: [number, number][] = [
   [760, 88],
   [1000, 102],
 ];
-const MARKS: { x: number; y: number; label: string }[] = [
-  { x: 300, y: 46, label: "5 m" },
-  { x: 520, y: 66, label: "10 m" },
-  { x: 760, y: 88, label: "18 m" },
+// Common dive depths, in round numbers for each system.
+const MARKS: { x: number; y: number; label: string; imperial: string }[] = [
+  { x: 300, y: 46, label: "5 m", imperial: "15 ft" },
+  { x: 520, y: 66, label: "10 m", imperial: "33 ft" },
+  { x: 760, y: 88, label: "18 m", imperial: "60 ft" },
 ];
 
 export function DepthProfile({ className }: { className?: string }) {
@@ -47,7 +49,7 @@ export function DepthProfile({ className }: { className?: string }) {
         className="text-fin absolute font-mono text-[11px] leading-none"
         style={{ left: `${(SLOPE[0]![0] / 1000) * 100}%`, top: `calc(${(WATERLINE / 110) * 100}% - 15px)` }}
       >
-        0 m
+        <UnitText metric="0 m" imperial="0 ft" />
       </span>
       {MARKS.map((m) => (
         <span
@@ -55,7 +57,7 @@ export function DepthProfile({ className }: { className?: string }) {
           className="text-cream/80 absolute font-mono text-[11px] leading-none"
           style={{ left: `calc(${(m.x / 1000) * 100}% + 6px)`, top: `calc(${(m.y / 110) * 100}% - 13px)` }}
         >
-          {m.label}
+          <UnitText metric={m.label} imperial={m.imperial} />
         </span>
       ))}
     </div>

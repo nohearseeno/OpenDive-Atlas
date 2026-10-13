@@ -94,6 +94,8 @@ export interface TripAiNotes {
 }
 
 export interface TripPlan {
+  /** Units the plan's text was written in (older plans: metric). */
+  units?: "metric" | "imperial";
   home: Airport | null;
   legs: TripLeg[];
   days: TripDay[];

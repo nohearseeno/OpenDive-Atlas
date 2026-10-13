@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { EXPERIENCE_LABELS } from "@/domain/constants";
 import type { DayKind, TripPlan } from "@/domain/itinerary";
+import { Measure, UnitsMismatchNote } from "@/components/units/measure";
 
 const DAY_ICON: Record<DayKind, typeof Plane> = { travel: Plane, dive: Waves, topside: Sun };
 
@@ -32,7 +33,11 @@ export function TripPlanView({ plan }: { plan: TripPlan }) {
           <span>
             {plan.legs.length} {plan.legs.length === 1 ? "area" : "areas"}
           </span>
-          {plan.flightKm > 0 && <span>About {plan.flightKm.toLocaleString("en-GB")} km of flying</span>}
+          {plan.flightKm > 0 && (
+            <span>
+              About <Measure q="distance" value={plan.flightKm} /> of flying
+            </span>
+          )}
         </p>
         {plan.ai?.overview && <p className="text-lg">{plan.ai.overview}</p>}
       </div>
@@ -63,13 +68,18 @@ export function TripPlanView({ plan }: { plan: TripPlan }) {
                 </h3>
                 <p className="text-muted-foreground inline-flex items-center gap-1 text-sm">
                   <Plane className="size-4" aria-hidden /> {leg.airport.name} ({leg.airport.code}),{" "}
-                  {leg.airport.distanceKm} km away
+                  <Measure q="distance" value={leg.airport.distanceKm} /> away
                 </p>
               </div>
               {leg.alternatives?.length ? (
                 <p className="text-muted-foreground mt-1 text-xs">
                   Also nearby:{" "}
-                  {leg.alternatives.map((a) => `${a.name} (${a.code}), ${a.distanceKm} km`).join(" · ")}
+                  {leg.alternatives.map((a, ai) => (
+                    <span key={a.code}>
+                      {ai > 0 && " · "}
+                      {a.name} ({a.code}), <Measure q="distance" value={a.distanceKm} />
+                    </span>
+                  ))}
                 </p>
               ) : null}
               {plan.ai?.legNotes[i] && <p className="mt-2 text-sm">{plan.ai.legNotes[i]}</p>}
@@ -102,6 +112,12 @@ export function TripPlanView({ plan }: { plan: TripPlan }) {
         <h2 id="trip-days" className="text-xl font-semibold">
           Day by day
         </h2>
+        <UnitsMismatchNote written={plan.units ?? "metric"}>
+          <p className="text-muted-foreground text-xs">
+            This day plan was written in {(plan.units ?? "metric") === "metric" ? "metric" : "imperial"} units. Plan the
+            trip again to see it in your units.
+          </p>
+        </UnitsMismatchNote>
         <ol className="divide-y rounded-xl border">
           {plan.days.map((d) => {
             const Icon = DAY_ICON[d.kind];

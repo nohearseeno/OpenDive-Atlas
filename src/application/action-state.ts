@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fromUnits, parseUnits, type Quantity } from "@/lib/units";
 import { RepositoryError } from "@/infrastructure/repositories/errors";
 
 /** Uniform result for form-backed server actions (used with useActionState). */
@@ -42,4 +43,16 @@ export function rethrowIfNavigation(error: unknown): void {
 export function str(form: FormData, key: string): string {
   const v = form.get(key);
   return typeof v === "string" ? v : "";
+}
+
+/**
+ * A measurement field as metric text. Forms send `units=imperial` when the
+ * diver typed feet or °F; anything else is taken as metric already.
+ */
+export function measure(form: FormData, key: string, q: Quantity): string {
+  const raw = str(form, key).trim();
+  const units = parseUnits(str(form, "units")) ?? "metric";
+  if (raw === "" || units === "metric") return raw;
+  const n = Number(raw);
+  return Number.isFinite(n) ? String(fromUnits(q, n, units)) : raw;
 }
