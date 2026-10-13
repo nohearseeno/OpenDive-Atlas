@@ -91,7 +91,7 @@ Moderators work in **Admin → Suggestions**:
 
 Divers can also use **Find my dive** (`/recommend`): describe what you're after ("warm water, sharks, beginner, December") and Claude suggests matching sites from the atlas, limited to 10 requests an hour per visitor.
 
-Both features need `ANTHROPIC_API_KEY` (and the AI moderator needs `AI_REVIEW_TOKEN`); see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
+Both features need Claude API access, either keyless through workload identity federation (recommended) or with `ANTHROPIC_API_KEY`; the AI moderator also needs `AI_REVIEW_TOKEN`; see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
 
 ## User roles
 

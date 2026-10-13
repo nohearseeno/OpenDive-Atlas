@@ -16,8 +16,31 @@ Set these in Vercel (Project → Settings → Environment Variables). They're se
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | for AI features | Claude API key from [console.anthropic.com](https://console.anthropic.com). Turns on **Find my dive** recommendations and, with the token below, the AI moderator. |
+| `ANTHROPIC_API_KEY` | for AI features, unless you use federation (below) | Claude API key from [console.anthropic.com](https://console.anthropic.com). Turns on **Find my dive** recommendations and, with the token below, the AI moderator. |
 | `AI_REVIEW_TOKEN` | for the AI moderator | A random string (32+ characters) that must match `public.maintenance_tokens` for job `ai-review`. It lets the AI moderator record verdicts through `apply_ai_review()`; it grants nothing else. Set it in the database with `insert into public.maintenance_tokens (job, token) values ('ai-review', '<token>') on conflict (job) do update set token = excluded.token;` |
+
+#### Keyless option: workload identity federation (recommended)
+
+Instead of `ANTHROPIC_API_KEY`, the app can authenticate with a short-lived Vercel OIDC token that Anthropic exchanges for a short-lived access token. No long-lived secret is stored anywhere. If `ANTHROPIC_API_KEY` is also set, the key wins, so remove it once federation works.
+
+| Variable | Description |
+| --- | --- |
+| `ANTHROPIC_FEDERATION_RULE_ID` | `fdrl_...` from Claude Console → Settings → Workload identity |
+| `ANTHROPIC_ORGANIZATION_ID` | Your Anthropic organization ID (a UUID) |
+| `ANTHROPIC_SERVICE_ACCOUNT_ID` | `svac_...`, the rule's target service account |
+| `ANTHROPIC_WORKSPACE_ID` | Optional `wrkspc_...`; needed only if the rule covers more than one workspace |
+
+None of these are secrets. Setup:
+
+1. **Vercel:** Project → Settings → Security → *Secure backend access with OIDC federation*: enabled, issuer mode **Team**.
+2. **Claude Console** → Settings → Workload identity → **Connect workload** → **Custom OIDC**:
+   - Issuer URL `https://oidc.vercel.com/<team-slug>` (JWKS: discovery).
+   - Match subject `owner:<team-slug>:project:opendive-atlas:environment:production`. Use a trailing `*` instead of `production` to also allow preview deployments.
+   - Audience `https://api.anthropic.com`.
+   - OAuth scope `workspace:developer`.
+3. Set the variables above in Vercel for Production (and Preview, if the rule allows it), then redeploy.
+
+The app asks Vercel for a fresh token with audience `https://api.anthropic.com` and a unique `jti` for every exchange, because Anthropic accepts each `jti` once. The SDK caches the resulting access token until shortly before it expires.
 
 Both features use `claude-opus-5-5`. A review with web search typically costs a few cents; a recommendation costs less than a cent once the site catalogue is cached. Recommendations are limited to 10 per visitor per hour and 1,000 per day in total.
 
