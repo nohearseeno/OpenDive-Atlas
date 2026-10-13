@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowDownToLine, Eye, MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AddToTripButton } from "@/components/trip/add-to-trip-button";
 import { ReviewBadge } from "./review-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DiveSiteSummary } from "@/domain/entities";
@@ -40,7 +41,7 @@ export function SiteCard({ site }: { site: DiveSiteSummary }) {
           </Badge>
           {site.reviewLevel !== "human" && <ReviewBadge level={site.reviewLevel} />}
         </div>
-        <dl className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
+        <dl className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 pr-10 text-xs">
           <div className="flex items-center gap-1">
             <dt className="sr-only">Max depth</dt>
             <ArrowDownToLine className="size-3.5" aria-hidden />
@@ -56,6 +57,8 @@ export function SiteCard({ site }: { site: DiveSiteSummary }) {
             <dd>{site.speciesCount} species</dd>
           </div>
         </dl>
+        {/* Above the card's full-size link so it can be clicked on its own. */}
+        <AddToTripButton slug={site.slug} name={site.name} compact className="absolute right-4 bottom-4 z-10" />
       </CardContent>
     </Card>
   );

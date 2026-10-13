@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Shield, User } from "lucide-react";
+import { LogOut, Shield, User, Route } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -49,6 +49,11 @@ export function UserMenu({
         <DropdownMenuItem asChild>
           <Link href="/profile">
             <User /> Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/trips">
+            <Route /> My trips
           </Link>
         </DropdownMenuItem>
         {isStaff && (

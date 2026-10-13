@@ -134,3 +134,9 @@
 .dive-popup-meta { font-size: 0.75rem; }
 .dive-popup-flag { color: var(--sponge-ink); font-size: 0.75rem; font-weight: 500; }
 .dive-popup a { color: var(--wall); font-weight: 500; padding-top: 0.25rem; }
+.dive-popup-trip {
+  justify-self: start; margin-top: 0.25rem; padding: 0.2rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--background); font-size: 0.75rem; font-weight: 500; cursor: pointer;
+}
+.dive-popup-trip:hover { background: var(--accent); }
+.dive-popup-trip[aria-pressed="true"] { background: var(--fin); border-color: var(--fin); color: var(--reef-hole); }

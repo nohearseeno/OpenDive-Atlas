@@ -23,6 +23,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
 | 🤖 **AI moderator** | Claude checks every site and species suggestion (with web search). Confident approvals go live as *Digitally reviewed*; a human moderator then marks them *Human reviewed* |
 | ✨ **Find my dive** | Describe the dive you want in plain words and get site recommendations from the atlas |
+| 🧭 **Trip planner** | Pick sites (from the map, site pages, Find my dive or a description) and get the best route, airports, a day-by-day plan with a topside day before every flight, and AI notes on seasons and logistics; save and share trips |
 | 🐟 **Top Contributors** | Divers with 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
 | 🛡️ **Moderation & admin** | Moderators review site and species suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
@@ -91,7 +92,16 @@ Moderators work in **Admin → Suggestions**:
 
 Divers can also use **Find my dive** (`/recommend`): describe what you're after ("warm water, sharks, beginner, December") and Claude suggests matching sites from the atlas, limited to 10 requests an hour per visitor. Answers are cached for 24 hours, so a repeated search (or Back from a site page) shows the same results without calling Claude again or using up the limit. Signed-in divers also get their 30 most recent searches saved on the page, and reopening one costs nothing.
 
-Both features need Claude API access, either keyless through workload identity federation (recommended) or with `ANTHROPIC_API_KEY`; the AI moderator also needs `AI_REVIEW_TOKEN`; see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
+The **trip planner** (`/trip`) turns a list of sites into a travel plan. Add sites with *Add to trip* on the map, site pages and cards, Find my dive results, the planner's search box, or by describing the trip ("a week of cenote diving"). The app then works out, without AI:
+
+- the shortest route: nearby sites (within 150 km) are grouped into areas, areas are ordered for the least travel (a round trip from your home airport if you give one), and easier sites come first in each area
+- the airport for each area, from [OurAirports](https://ourairports.com/data/) data (public domain), with nearby alternatives
+- a day-by-day schedule with a **topside day before every flight**, in line with Divers Alert Network guidance on flying after diving
+- warnings for sites above your experience level and areas far from an airport
+
+Claude then adds local notes, best months for each site, tips, and warnings when your dates fall outside a site's season. These notes are cached for 24 hours per route and share Find my dive's hourly limit. Anyone can plan a trip in their browser; signed-in divers can save up to 50 trips and share a read-only link.
+
+These features need Claude API access, either keyless through workload identity federation (recommended) or with `ANTHROPIC_API_KEY`; the AI moderator also needs `AI_REVIEW_TOKEN`; see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
 
 ## User roles
 

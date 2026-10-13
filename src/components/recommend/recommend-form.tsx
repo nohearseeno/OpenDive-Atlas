@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SiteCard } from "@/components/sites/site-card";
+import { AddAllToTrip } from "@/components/trip/add-all-to-trip";
 import { recommendAction, type RecommendState } from "@/application/actions/recommendations";
 
 const EXAMPLES = [
@@ -112,6 +113,9 @@ export function RecommendForm({
         {!pending && shown.status === "ok" && (
           <>
             {shown.intro && <p className="text-lg">{shown.intro}</p>}
+            {shown.picks && shown.picks.length > 1 && (
+              <AddAllToTrip sites={shown.picks.map(({ site }) => ({ slug: site.slug, name: site.name }))} />
+            )}
             {shown.picks?.length ? (
               <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {shown.picks.map(({ site, reason }) => (

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSessionUser, isModerator } from "@/application/session";
+import { TripHeaderLink } from "@/components/trip/trip-header-link";
 import { Logo } from "./logo";
 import { MainNav } from "./main-nav";
 import { MobileNav } from "./mobile-nav";
@@ -17,6 +18,7 @@ export async function SiteHeader() {
         <Logo />
         <MainNav />
         <div className="ml-auto flex items-center gap-2">
+          <TripHeaderLink />
           {user ? (
             <>
               <Button asChild size="sm" variant="fin" className="hidden sm:inline-flex">
