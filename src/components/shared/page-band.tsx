@@ -1,6 +1,6 @@
-import { Wave } from "./wave";
+import { SeabedEdge } from "./depth-edges";
 
-/** Full-width wall-blue page header with sponge heading and a wave edge. */
+/** Full-width wall-blue page header with sponge heading and a seabed edge. */
 export function PageBand({
   eyebrow,
   title,
@@ -27,7 +27,7 @@ export function PageBand({
         </div>
         {children && <div className="pt-6">{children}</div>}
       </div>
-      <Wave className="fill-background" />
+      <SeabedEdge className="fill-background" />
     </div>
   );
 }

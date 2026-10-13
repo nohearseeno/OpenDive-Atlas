@@ -89,10 +89,6 @@ Ten dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), 
 
 Coordinates are approximate and for orientation only. **Always confirm entry points, conditions and permits with a local operator.**
 
-## Partner project: ShoalBase
-
-[ShoalBase](https://www.shoalbase.org/) (University of Glasgow) is an open database of fish social behaviour. OpenDive Atlas links to it from fish species pages, dive sites with fish, and after a diver logs a fish sighting, inviting them to record group size and behaviour there. ShoalBase has no public API and licenses its data CC BY-NC-ND 4.0, so no ShoalBase data is copied into OpenDive Atlas.
-
 ## Licence
 
 - **Code:** [MIT](LICENSE).

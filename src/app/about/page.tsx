@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
-import { SHOALBASE_URL } from "@/components/shoalbase/shoalbase-link";
 
 export const metadata: Metadata = { title: "About" };
 
@@ -25,16 +24,6 @@ export default function AboutPage() {
           licensed sources such as Wikimedia Commons, each linked to its source page. Featured photography, including
           the homepage photo of a long-spined squirrelfish by Michael Davis, is © its photographer, all rights reserved,
           and is not covered by the MIT licence that applies to the code.
-        </p>
-        <h2 className="text-wall pt-4 text-2xl font-semibold">Partner project: ShoalBase</h2>
-        <p>
-          <a className="text-wall underline" href={SHOALBASE_URL} target="_blank" rel="noreferrer">
-            ShoalBase
-          </a>{" "}
-          is the University of Glasgow&apos;s open database of fish social behaviour. When you see fish schooling or
-          shoaling on a dive, you can record group size and behaviour there to support research on ecology, evolution,
-          welfare and conservation. OpenDive Atlas links to ShoalBase from fish species and sightings; ShoalBase data
-          stays on ShoalBase under its own CC BY-NC-ND 4.0 licence.
         </p>
         <h2 className="text-wall pt-4 text-2xl font-semibold">Contribute</h2>
         <p>
