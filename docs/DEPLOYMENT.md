@@ -84,6 +84,14 @@ update public.profiles set role = 'admin' where username = '<your_username>';
 - [ ] Run `npm run seed:verify-photos` and apply the generated credits SQL
 - [ ] Switch `NEXT_PUBLIC_MAP_TILE_URL` to a production tile provider if you expect significant traffic
 
+## Top Contributor invitation emails
+
+1. Create a [Resend](https://resend.com) account, add `opendiveatlas.org` under **Domains**, and add the DNS records it shows at your DNS provider.
+2. Create an API key and store it: `npx supabase secrets set RESEND_API_KEY=re_...`
+3. Deploy the function: `npx supabase functions deploy send-contributor-invites`
+
+See [ENVIRONMENT.md](ENVIRONMENT.md#edge-function-secrets) for optional settings.
+
 ## Database changes after launch
 
 1. Add a new migration in `supabase/migrations/` (never edit applied ones).

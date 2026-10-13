@@ -15,17 +15,26 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SquirrelfishGlyph, TOP_CONTRIBUTOR_LABEL } from "@/components/shared/top-contributor-badge";
+import { countApprovedNewSites, getInviteForUser } from "@/infrastructure/repositories/contributor-invites";
+import { TOP_CONTRIBUTOR_THRESHOLD } from "@/domain/constants";
 
 export const metadata: Metadata = { title: "My profile" };
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: { searchParams: Promise<{ contributor?: string }> }) {
   const user = await requireUser("/profile");
+  const { contributor } = await searchParams;
   const db = await createSupabaseServerClient();
-  const [sightings, reviews, suggestions] = await Promise.all([
+  const [sightings, reviews, suggestions, invite, approvedSites] = await Promise.all([
     listSightings(db, { userId: user.id, status: "all", limit: 50 }),
     listReviews(db, { userId: user.id, status: "all", limit: 50 }),
     listSiteSuggestions(db, { userId: user.id, status: "all", limit: 50 }),
+    getInviteForUser(db, user.id),
+    countApprovedNewSites(db, user.id),
   ]);
+  const isTopContributor = user.profile?.isTopContributor ?? false;
+  const needed = TOP_CONTRIBUTOR_THRESHOLD + 1;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -41,6 +50,73 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
         <div className="space-y-10 lg:col-span-3">
+          {contributor === "accepted" && (
+            <Alert variant="success">
+              <AlertDescription>
+                Welcome aboard! You&apos;re now a {TOP_CONTRIBUTOR_LABEL}. Your badge is live and the moderator area is
+                under your account menu.
+              </AlertDescription>
+            </Alert>
+          )}
+          {contributor === "unavailable" && (
+            <Alert variant="destructive">
+              <AlertDescription>That invitation isn&apos;t available on this account.</AlertDescription>
+            </Alert>
+          )}
+          {contributor === "declined" && (
+            <Alert>
+              <AlertDescription>No problem. The invitation stays here if you change your mind.</AlertDescription>
+            </Alert>
+          )}
+          <section
+            aria-labelledby="top-contributor"
+            className="bg-wall text-cream flex flex-wrap items-center gap-4 rounded-xl p-4 sm:p-5"
+          >
+            <span className="bg-sponge text-sponge-ink grid size-12 shrink-0 place-items-center rounded-full">
+              <SquirrelfishGlyph className="w-8" />
+            </span>
+            <div className="min-w-0 flex-1 space-y-1">
+              <h2 id="top-contributor" className="text-sponge font-semibold">
+                {TOP_CONTRIBUTOR_LABEL}
+              </h2>
+              {isTopContributor ? (
+                <p className="text-cream/90 text-sm">You earned the badge. Thank you for building the atlas!</p>
+              ) : invite ? (
+                <p className="text-cream/90 text-sm">
+                  You&apos;ve been invited! Moderators approved {invite.approvedSites} new dive sites you added.
+                </p>
+              ) : (
+                <>
+                  <p className="text-cream/90 text-sm">
+                    Get {needed} new dive sites approved to be invited. You have {approvedSites} of {needed}.
+                  </p>
+                  <div
+                    role="progressbar"
+                    aria-label="Approved new dive sites"
+                    aria-valuemin={0}
+                    aria-valuemax={needed}
+                    aria-valuenow={Math.min(approvedSites, needed)}
+                    className="bg-cream/20 h-1.5 overflow-hidden rounded-full"
+                  >
+                    <div
+                      className="bg-sponge h-full rounded-full"
+                      style={{ width: `${Math.min(100, (approvedSites / needed) * 100)}%` }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            {!isTopContributor &&
+              (invite ? (
+                <Button asChild variant="sponge" size="sm">
+                  <Link href={`/contributor/invite/${invite.id}`}>View invitation</Link>
+                </Button>
+              ) : (
+                <Button asChild variant="cream" size="sm">
+                  <Link href="/sites/suggest">Suggest a dive site</Link>
+                </Button>
+              ))}
+          </section>
           <section aria-labelledby="my-sightings" className="space-y-4">
             <h2 id="my-sightings" className="text-xl font-semibold">
               My sightings ({sightings.length})

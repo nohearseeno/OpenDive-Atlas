@@ -102,11 +102,17 @@ export function toPhoto(row: Tables<"photos">): Photo {
   };
 }
 
-type ProfileSummaryRow = Pick<Tables<"profiles">, "id" | "username" | "display_name" | "avatar_url">;
+type ProfileSummaryRow = Pick<Tables<"profiles">, "id" | "username" | "display_name" | "avatar_url" | "is_top_contributor">;
 
 export function toProfileSummary(row: ProfileSummaryRow | null): ProfileSummary | null {
   if (!row) return null;
-  return { id: row.id, username: row.username, displayName: row.display_name, avatarUrl: row.avatar_url };
+  return {
+    id: row.id,
+    username: row.username,
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    isTopContributor: row.is_top_contributor,
+  };
 }
 
 export function toProfile(row: Tables<"profiles">): Profile {
@@ -115,6 +121,7 @@ export function toProfile(row: Tables<"profiles">): Profile {
     username: row.username,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
+    isTopContributor: row.is_top_contributor,
     bio: row.bio,
     homeCountry: row.home_country,
     certificationLevel: row.certification_level,

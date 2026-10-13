@@ -7,7 +7,7 @@ import { toProfileSummary } from "./mappers";
 const REVIEW_SELECT = `
   id, site_id, rating_marine_life, rating_visibility, rating_photography, rating_difficulty,
   body, dived_on, status, created_at,
-  profiles(id, username, display_name, avatar_url),
+  profiles(id, username, display_name, avatar_url, is_top_contributor),
   dive_sites(id, slug, name)
 ` as const;
 
@@ -22,7 +22,7 @@ type ReviewRow = {
   dived_on: string | null;
   status: ModerationStatus;
   created_at: string;
-  profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null } | null;
+  profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null; is_top_contributor: boolean } | null;
   dive_sites: { id: string; slug: string; name: string } | null;
 };
 

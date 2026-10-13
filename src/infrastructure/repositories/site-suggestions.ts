@@ -8,7 +8,7 @@ import { toProfileSummary } from "./mappers";
 const SELECT = `
   id, site_id, payload, note, status, review_note, created_at, reviewed_at,
   dive_sites(id, slug, name),
-  profiles!site_suggestions_user_id_fkey(id, username, display_name, avatar_url)
+  profiles!site_suggestions_user_id_fkey(id, username, display_name, avatar_url, is_top_contributor)
 ` as const;
 
 /** Current values of a site in the same shape as a suggestion payload. */
@@ -69,7 +69,7 @@ type Row = {
   created_at: string;
   reviewed_at: string | null;
   dive_sites: { id: string; slug: string; name: string } | null;
-  profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null } | null;
+  profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null; is_top_contributor: boolean } | null;
 };
 
 function toSuggestion(row: Row): SiteSuggestion {

@@ -14,6 +14,7 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000010_starter_dive_sites.sql` | 211 unverified starter dive sites across all regions |
 | `migrations/20261013000011_consolidate_policies.sql` | Merges owner/moderator policies into one per action (performance) |
 | `migrations/20261013000012_moderator_site_permissions.sql` | Moderators can read drafts, add and edit dive sites, and review site suggestions |
+| `migrations/20261013000013_top_contributors.sql` | `profiles.is_top_contributor`, `contributor_invites`, auto-invite trigger, `respond_contributor_invite()` |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD
@@ -144,6 +145,7 @@ erDiagram
 | `species_category` | fish, shark_ray, reptile, mammal, cephalopod, crustacean, mollusc, coral, invertebrate |
 | `sighting_frequency` | rare, occasional, common, abundant |
 | `moderation_status` | pending, approved, rejected |
+| `invite_status` | pending, accepted, declined |
 
 ## Row Level Security
 
@@ -159,10 +161,18 @@ All tables have RLS enabled. Helper functions `private.is_admin()` and `private.
 | photos | approved, own, or moderator | self, own storage folder, own sighting; admin (any incl. external URLs) | own; moderator | own; moderator |
 | reviews | approved, own, or moderator | self | own; moderator | own; moderator |
 | site_suggestions | own, or moderator | self (forced `pending`) | moderator | own while pending; admin |
+| contributor_invites | own, or moderator | — (trigger only) | — (via `respond_contributor_invite()`) | — |
 
 ### Guard triggers
 
-- `protect_profile_role` — non-admins cannot change `profiles.role`.
+- `protect_profile_role` — non-admins cannot change `profiles.role` or `profiles.is_top_contributor` (trusted `SECURITY DEFINER` functions can).
+- `site_suggestions_offer_top_contributor` — when a new-site suggestion is approved and its author now has more than 50 approved new sites, creates a pending `contributor_invites` row (once per diver).
+
+### Top Contributor invitations
+
+1. The trigger above creates the invitation.
+2. After approving a new site, the app calls the `send-contributor-invites` Edge Function. It claims every unsent invitation (`email_sent_at`), emails it through Resend, and releases the claim if sending fails, so the next call retries.
+3. The email links to `/contributor/invite/<id>`. After signing in, the diver accepts or declines. `respond_contributor_invite(invite_id, accept)` checks the invitation belongs to the caller, sets `is_top_contributor`, and promotes a `user` to `moderator`. Existing moderators and admins keep their role. A declined invitation can still be accepted later.
 - `protect_moderated_row` (sightings, photos, reviews) — for non-moderators, forces `status = 'approved'` on insert, keeps `status` unchanged on update, and pins the owner column to `auth.uid()`. Trusted contexts without a JWT subject (SQL editor, migrations, seed) are not affected.
 
 ### Storage (`photos` bucket)
