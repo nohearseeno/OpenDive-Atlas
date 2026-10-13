@@ -1,12 +1,13 @@
-import type { DiveSite, ModerationStatus, SiteFieldValues, SiteSuggestion } from "@/domain/entities";
+import type { AiReviewStatus, DiveSite, ModerationStatus, SiteFieldValues, SiteSuggestion } from "@/domain/entities";
 import type { SiteSuggestionInput } from "@/domain/schemas";
 import type { Json } from "@/infrastructure/supabase/database.types";
 import type { SupabaseServerClient } from "@/infrastructure/supabase/server";
 import { raise } from "./errors";
-import { toProfileSummary } from "./mappers";
+import { toAiReview, toProfileSummary } from "./mappers";
 
 const SELECT = `
   id, site_id, payload, note, status, review_note, created_at, reviewed_at,
+  ai_status, ai_confidence, ai_summary, ai_checks, ai_sources, ai_reviewed_at,
   dive_sites(id, slug, name),
   profiles!site_suggestions_user_id_fkey(id, username, display_name, avatar_url, is_top_contributor)
 ` as const;
@@ -50,13 +51,14 @@ export function diffSiteFields(current: DiveSite, proposed: SiteSuggestionInput)
 export async function createSiteSuggestion(
   db: SupabaseServerClient,
   input: { siteId: string | null; payload: SiteFieldValues; note: string | null },
-): Promise<void> {
-  const { error } = await db.from("site_suggestions").insert({
-    site_id: input.siteId,
-    payload: input.payload as Json,
-    note: input.note,
-  });
+): Promise<string> {
+  const { data, error } = await db
+    .from("site_suggestions")
+    .insert({ site_id: input.siteId, payload: input.payload as Json, note: input.note })
+    .select("id")
+    .single();
   if (error) raise(error, "save suggestion");
+  return data.id;
 }
 
 type Row = {
@@ -68,6 +70,12 @@ type Row = {
   review_note: string | null;
   created_at: string;
   reviewed_at: string | null;
+  ai_status: AiReviewStatus | null;
+  ai_confidence: number | null;
+  ai_summary: string | null;
+  ai_checks: unknown;
+  ai_sources: unknown;
+  ai_reviewed_at: string | null;
   dive_sites: { id: string; slug: string; name: string } | null;
   profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null; is_top_contributor: boolean } | null;
 };
@@ -84,6 +92,7 @@ function toSuggestion(row: Row): SiteSuggestion {
     reviewNote: row.review_note,
     createdAt: row.created_at,
     reviewedAt: row.reviewed_at,
+    ai: toAiReview(row),
   };
 }
 

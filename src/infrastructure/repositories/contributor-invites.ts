@@ -1,6 +1,7 @@
 import type { ContributorInvite, InviteStatus } from "@/domain/entities";
 import type { Tables } from "@/infrastructure/supabase/database.types";
 import type { SupabaseServerClient } from "@/infrastructure/supabase/server";
+import { getSupabaseConfig } from "@/infrastructure/supabase/env";
 import { raise } from "./errors";
 
 function toInvite(row: Tables<"contributor_invites">): ContributorInvite {
@@ -50,4 +51,24 @@ export async function countApprovedNewSites(db: SupabaseServerClient, userId: st
 export async function sendPendingInviteEmails(db: SupabaseServerClient): Promise<void> {
   const { error } = await db.functions.invoke("send-contributor-invites", { method: "POST" });
   if (error) console.error("send-contributor-invites failed:", error);
+}
+
+/**
+ * Same as sendPendingInviteEmails, for background AI approvals where no
+ * moderator is signed in: authenticates with the AI review token instead.
+ */
+export async function sendPendingInviteEmailsAsAiModerator(): Promise<void> {
+  const token = process.env.AI_REVIEW_TOKEN;
+  if (!token) return;
+  const { url, anonKey } = getSupabaseConfig();
+  try {
+    const res = await fetch(`${url}/functions/v1/send-contributor-invites`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, apikey: anonKey, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (!res.ok) console.error("send-contributor-invites failed:", res.status, await res.text());
+  } catch (e) {
+    console.error("send-contributor-invites failed:", e);
+  }
 }

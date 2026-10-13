@@ -105,6 +105,10 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `reviewSpeciesSuggestionAction` | moderator | id, decision (`approve`/`reject`), reviewNote | Calls `review_species_suggestion()`, which applies an approved edit or creates the species |
 | `reviewSuggestionAction` | moderator | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
 | `respondToInviteAction` | invited diver | id, decision (`accept`/`decline`) | Accepts or declines a Top Contributor invitation; accepting grants the badge and moderator role |
+| `runAiReviewAction` | moderator | kind (`site`/`species`), id | Runs or re-runs the AI moderator on a pending suggestion |
+| `confirmHumanReviewAction` | moderator | siteId | Marks a digitally reviewed site as human reviewed |
+| `unpublishSiteAction` | moderator | siteId | Takes a site off the map |
+| `recommendAction` | anyone (rate-limited) | query | Returns up to six recommended sites with reasons |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |
 | `deletePhotoAction` | owner / moderator | id | Deletes a photo and its storage object |
 

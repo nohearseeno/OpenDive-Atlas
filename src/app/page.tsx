@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- hero photo is served from Supabase Storage */
 import Link from "next/link";
-import { ArrowRight, Camera, Fish, Map, Star } from "lucide-react";
+import { ArrowRight, Camera, Fish, Map, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteCard } from "@/components/sites/site-card";
 import { SightingList } from "@/components/sightings/sighting-list";
@@ -95,6 +95,9 @@ export default async function HomePage() {
               Explore the map <ArrowRight />
             </Button>
           </form>
+          <Link href="/recommend" className="text-cream/90 hover:text-cream -mt-2 inline-flex items-center gap-1.5 text-sm underline underline-offset-4">
+            <Sparkles className="size-4" aria-hidden /> Not sure where to go? Describe your ideal dive
+          </Link>
           <nav aria-label="Browse by dive type" className="flex flex-wrap justify-center gap-2">
             {FILTER_DIVE_TYPES.map((t) => (
               <Link

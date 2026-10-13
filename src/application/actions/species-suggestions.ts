@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { speciesReviewSchema, speciesSuggestionSchema, suggestionNoteSchema, uuidSchema } from "@/domain/schemas";
@@ -13,6 +14,7 @@ import {
   reviewSpeciesSuggestion,
 } from "@/infrastructure/repositories/species-suggestions";
 import { RepositoryError } from "@/infrastructure/repositories/errors";
+import { runAiReview } from "@/infrastructure/ai/moderator";
 import { getSessionUser, isModerator } from "../session";
 import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
 
@@ -48,7 +50,8 @@ export async function suggestSpeciesEditAction(_prev: ActionState, form: FormDat
     if (!Object.keys(changes).length && !note) {
       return { ok: false, message: "Change at least one detail or add a note for the moderators." };
     }
-    await createSpeciesSuggestion(db, { speciesId: species.id, payload: changes, note });
+    const id = await createSpeciesSuggestion(db, { speciesId: species.id, payload: changes, note });
+    if (Object.keys(changes).length) after(() => runAiReview("species", id));
   } catch (error) {
     return fromUnknownError(error);
   }
@@ -70,7 +73,8 @@ export async function suggestNewSpeciesAction(_prev: ActionState, form: FormData
       .select("id", { count: "exact", head: true })
       .ilike("scientific_name", parsed.data.scientificName);
     if (count) return DUPLICATE;
-    await createSpeciesSuggestion(db, { speciesId: null, payload: parsed.data as SpeciesFieldValues, note });
+    const id = await createSpeciesSuggestion(db, { speciesId: null, payload: parsed.data as SpeciesFieldValues, note });
+    after(() => runAiReview("species", id));
   } catch (error) {
     return fromUnknownError(error);
   }

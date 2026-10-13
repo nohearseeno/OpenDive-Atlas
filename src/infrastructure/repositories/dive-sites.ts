@@ -191,3 +191,28 @@ export async function countDiveSites(db: SupabaseServerClient): Promise<number> 
   if (error) raise(error, "count dive sites");
   return count ?? 0;
 }
+
+/** Sites approved by the AI moderator that no human has confirmed yet. */
+export async function listDigitallyReviewedSites(db: SupabaseServerClient): Promise<DiveSite[]> {
+  const { data, error } = await db
+    .from("dive_sites")
+    .select("*")
+    .not("ai_reviewed_at", "is", null)
+    .eq("is_verified", false)
+    .eq("is_published", true)
+    .order("ai_reviewed_at", { ascending: false })
+    .limit(200);
+  if (error) raise(error, "load digitally reviewed sites");
+  return data.map(toDiveSite);
+}
+
+export async function countDigitallyReviewedSites(db: SupabaseServerClient): Promise<number> {
+  const { count, error } = await db
+    .from("dive_sites")
+    .select("id", { count: "exact", head: true })
+    .not("ai_reviewed_at", "is", null)
+    .eq("is_verified", false)
+    .eq("is_published", true);
+  if (error) raise(error, "count digitally reviewed sites");
+  return count ?? 0;
+}

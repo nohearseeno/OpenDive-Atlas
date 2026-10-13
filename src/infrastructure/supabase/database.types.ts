@@ -11,6 +11,8 @@ type ExperienceLevel = Database["public"]["Enums"]["experience_level"];
 type CurrentStrength = Database["public"]["Enums"]["current_strength"];
 type ModerationStatus = Database["public"]["Enums"]["moderation_status"];
 
+export type AiStatus = "approved" | "needs_human" | "rejected" | "failed";
+
 type DiveSiteRow = {
   id: string;
   slug: string;
@@ -31,6 +33,7 @@ type DiveSiteRow = {
   access_notes: string | null;
   is_published: boolean;
   is_verified: boolean;
+  ai_reviewed_at: string | null;
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
@@ -291,6 +294,12 @@ export type Database = {
           reviewed_by: string | null;
           reviewed_at: string | null;
           review_note: string | null;
+          ai_status: AiStatus | null;
+          ai_confidence: number | null;
+          ai_summary: string | null;
+          ai_checks: Json | null;
+          ai_sources: Json | null;
+          ai_reviewed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -353,6 +362,12 @@ export type Database = {
           reviewed_by: string | null;
           reviewed_at: string | null;
           review_note: string | null;
+          ai_status: AiStatus | null;
+          ai_confidence: number | null;
+          ai_summary: string | null;
+          ai_checks: Json | null;
+          ai_sources: Json | null;
+          ai_reviewed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -488,6 +503,27 @@ export type Database = {
       review_species_suggestion: {
         Args: { suggestion_id: string; approve: boolean; reviewer_note?: string | null };
         Returns: ModerationStatus;
+      };
+      ai_review_context: {
+        Args: { p_token: string; p_kind: "site" | "species"; p_id: string };
+        Returns: Json;
+      };
+      apply_ai_review: {
+        Args: {
+          p_token: string;
+          p_kind: "site" | "species";
+          p_id: string;
+          p_decision: AiStatus;
+          p_confidence: number;
+          p_summary: string;
+          p_checks: Json;
+          p_sources: Json;
+        };
+        Returns: string;
+      };
+      take_recommendation_quota: {
+        Args: { p_ip_hash: string };
+        Returns: boolean;
       };
       respond_contributor_invite: {
         Args: { invite_id: string; accept: boolean };

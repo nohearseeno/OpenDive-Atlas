@@ -59,7 +59,10 @@ const escape = (s: string) =>
 function popupHtml(m: DiveSiteMarker) {
   const types = m.diveTypes.map((t) => DIVE_TYPE_LABELS[t]).join(" · ");
   const depth = m.maxDepthM != null ? ` · max ${m.maxDepthM} m` : "";
-  const unverified = m.isVerified ? "" : `<p class="dive-popup-flag">Unverified starter entry</p>`;
+  const unverified =
+    m.reviewLevel === "human"
+      ? ""
+      : `<p class="dive-popup-flag">${m.reviewLevel === "digital" ? "Digitally reviewed" : "Unverified starter entry"}</p>`;
   return `
     <div class="dive-popup">
       <p class="dive-popup-name">${escape(m.name)}</p>

@@ -2,18 +2,46 @@
  * Row -> domain entity mappers. Keeps snake_case database shapes out of the UI.
  */
 import type {
+  AiReview,
+  AiReviewStatus,
   DiveSite,
   DiveSiteMarker,
   DiveSiteSummary,
   Photo,
   Profile,
   ProfileSummary,
+  ReviewLevel,
   Species,
 } from "@/domain/entities";
 import type { Tables, Views } from "@/infrastructure/supabase/database.types";
 import { publicPhotoUrl } from "@/infrastructure/supabase/storage";
 
 const num = (v: number | string | null): number | null => (v == null ? null : Number(v));
+
+export function reviewLevel(isVerified: boolean, aiReviewedAt: string | null): ReviewLevel {
+  return isVerified ? "human" : aiReviewedAt ? "digital" : "unverified";
+}
+
+type AiRow = {
+  ai_status: AiReviewStatus | null;
+  ai_confidence: number | null;
+  ai_summary: string | null;
+  ai_checks: unknown;
+  ai_sources: unknown;
+  ai_reviewed_at: string | null;
+};
+
+export function toAiReview(row: AiRow): AiReview | null {
+  if (!row.ai_status) return null;
+  return {
+    status: row.ai_status,
+    confidence: row.ai_confidence,
+    summary: row.ai_summary,
+    checks: Array.isArray(row.ai_checks) ? (row.ai_checks as AiReview["checks"]) : [],
+    sources: Array.isArray(row.ai_sources) ? (row.ai_sources as string[]).filter((u) => typeof u === "string") : [],
+    reviewedAt: row.ai_reviewed_at,
+  };
+}
 
 export function toDiveSite(row: Tables<"dive_sites">): DiveSite {
   return {
@@ -34,6 +62,7 @@ export function toDiveSite(row: Tables<"dive_sites">): DiveSite {
     accessNotes: row.access_notes,
     isPublished: row.is_published,
     isVerified: row.is_verified,
+    reviewLevel: reviewLevel(row.is_verified, row.ai_reviewed_at),
     updatedAt: row.updated_at,
   };
 }
@@ -68,6 +97,7 @@ export function toMarker(site: DiveSiteSummary): DiveSiteMarker {
     maxDepthM: site.maxDepthM,
     ratingOverall: site.ratings.overall,
     isVerified: site.isVerified,
+    reviewLevel: site.reviewLevel,
   };
 }
 

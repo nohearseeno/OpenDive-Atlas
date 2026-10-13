@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { reviewProcessCopy } from "@/infrastructure/ai/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, Camera, CheckCircle2, ChevronRight, Fish, PencilLine, Plus, Star } from "lucide-react";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageBand } from "@/components/shared/page-band";
+import { ReviewBadge } from "@/components/sites/review-badge";
 import { UnverifiedNotice } from "@/components/suggestions/unverified-notice";
 import { SiteFacts } from "@/components/sites/site-facts";
 import { SiteSpeciesList } from "@/components/sites/site-species-list";
@@ -99,7 +101,7 @@ export default async function SitePage({ params, searchParams }: Props) {
                 </span>
               )}
               {!site.isPublished && <Badge variant="destructive">Unpublished</Badge>}
-              {!site.isVerified && <Badge className="bg-cream/15 text-cream border-cream/30">Unverified starter entry</Badge>}
+              <ReviewBadge level={site.reviewLevel} onDark />
             </div>
           </div>
         }
@@ -132,10 +134,10 @@ export default async function SitePage({ params, searchParams }: Props) {
       {suggestionSent && (
         <Alert variant="success" className="mb-6">
           <CheckCircle2 />
-          <AlertDescription>Thanks! Your suggestion was sent. A moderator will review it before the page changes.</AlertDescription>
+          <AlertDescription>Thanks! Your suggestion was sent. {reviewProcessCopy()}</AlertDescription>
         </Alert>
       )}
-      {!site.isVerified && !suggestionSent && (
+      {site.reviewLevel === "unverified" && !suggestionSent && (
         <div className="mb-6">
           <UnverifiedNotice slug={site.slug} />
         </div>

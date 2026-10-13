@@ -1,12 +1,13 @@
-import type { ModerationStatus, Species, SpeciesFieldValues, SpeciesSuggestion } from "@/domain/entities";
+import type { AiReviewStatus, ModerationStatus, Species, SpeciesFieldValues, SpeciesSuggestion } from "@/domain/entities";
 import type { SpeciesSuggestionInput } from "@/domain/schemas";
 import type { Json } from "@/infrastructure/supabase/database.types";
 import type { SupabaseServerClient } from "@/infrastructure/supabase/server";
 import { raise } from "./errors";
-import { toProfileSummary } from "./mappers";
+import { toAiReview, toProfileSummary } from "./mappers";
 
 const SELECT = `
   id, species_id, payload, note, status, review_note, created_at, reviewed_at,
+  ai_status, ai_confidence, ai_summary, ai_checks, ai_sources, ai_reviewed_at,
   species(id, slug, common_name, scientific_name),
   profiles!species_suggestions_user_id_fkey(id, username, display_name, avatar_url, is_top_contributor)
 ` as const;
@@ -35,13 +36,14 @@ export function diffSpeciesFields(current: Species, proposed: SpeciesSuggestionI
 export async function createSpeciesSuggestion(
   db: SupabaseServerClient,
   input: { speciesId: string | null; payload: SpeciesFieldValues; note: string | null },
-): Promise<void> {
-  const { error } = await db.from("species_suggestions").insert({
-    species_id: input.speciesId,
-    payload: input.payload as Json,
-    note: input.note,
-  });
+): Promise<string> {
+  const { data, error } = await db
+    .from("species_suggestions")
+    .insert({ species_id: input.speciesId, payload: input.payload as Json, note: input.note })
+    .select("id")
+    .single();
   if (error) raise(error, "save suggestion");
+  return data.id;
 }
 
 type Row = {
@@ -53,6 +55,12 @@ type Row = {
   review_note: string | null;
   created_at: string;
   reviewed_at: string | null;
+  ai_status: AiReviewStatus | null;
+  ai_confidence: number | null;
+  ai_summary: string | null;
+  ai_checks: unknown;
+  ai_sources: unknown;
+  ai_reviewed_at: string | null;
   species: { id: string; slug: string; common_name: string; scientific_name: string } | null;
   profiles: { id: string; username: string; display_name: string | null; avatar_url: string | null; is_top_contributor: boolean } | null;
 };
@@ -71,6 +79,7 @@ function toSuggestion(row: Row): SpeciesSuggestion {
     reviewNote: row.review_note,
     createdAt: row.created_at,
     reviewedAt: row.reviewed_at,
+    ai: toAiReview(row),
   };
 }
 

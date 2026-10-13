@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { reviewProcessCopy } from "@/infrastructure/ai/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Camera, CheckCircle2, ChevronRight, MapPin, PencilLine, Plus } from "lucide-react";
@@ -111,7 +112,7 @@ export default async function SpeciesPage({ params, searchParams }: Props) {
       {suggestionSent && (
         <Alert variant="success">
           <CheckCircle2 />
-          <AlertDescription>Thanks! Your suggestion was sent. A moderator will review it before the page changes.</AlertDescription>
+          <AlertDescription>Thanks! Your suggestion was sent. {reviewProcessCopy()}</AlertDescription>
         </Alert>
       )}
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
