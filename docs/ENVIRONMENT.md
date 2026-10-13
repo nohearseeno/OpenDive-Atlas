@@ -16,8 +16,8 @@ Set these in Vercel (Project → Settings → Environment Variables). They're se
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | for AI features, unless you use federation (below) | Claude API key from [console.anthropic.com](https://console.anthropic.com). Turns on **Find my dive** recommendations and, with the token below, the AI moderator. |
-| `AI_REVIEW_TOKEN` | for the AI moderator | A random string (32+ characters) that must match `public.maintenance_tokens` for job `ai-review`. It lets the AI moderator record verdicts through `apply_ai_review()`; it grants nothing else. Set it in the database with `insert into public.maintenance_tokens (job, token) values ('ai-review', '<token>') on conflict (job) do update set token = excluded.token;` |
+| `ANTHROPIC_API_KEY` | for AI features, unless you use federation (below) | Claude API key from [console.anthropic.com](https://console.anthropic.com). With the token below, turns on **Find my dive**, trip notes and the AI moderator. |
+| `AI_REVIEW_TOKEN` | for all AI features | A random string (32+ characters) that must match `public.maintenance_tokens` for job `ai-review`. Only the server holds it: it lets the app take rate-limit quota, use the shared AI answer cache and record AI moderator verdicts; it grants nothing else. Set it in the database with `insert into public.maintenance_tokens (job, token) values ('ai-review', '<token>') on conflict (job) do update set token = excluded.token;` |
 
 #### Keyless option: workload identity federation (recommended)
 

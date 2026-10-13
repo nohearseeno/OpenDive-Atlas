@@ -607,7 +607,7 @@ export type Database = {
         Returns: string;
       };
       take_recommendation_quota: {
-        Args: { p_ip_hash: string };
+        Args: { p_token: string; p_ip_hash: string };
         Returns: boolean;
       };
       review_moderator_application: {

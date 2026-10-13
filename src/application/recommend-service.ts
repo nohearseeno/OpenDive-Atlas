@@ -20,7 +20,10 @@ export async function takeAiQuota(db: SupabaseServerClient): Promise<QuotaResult
   // Vercel sets x-forwarded-for; the first entry is the visitor's address.
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const ipHash = createHash("sha256").update(`opendive-recommend:${ip}`).digest("hex");
-  const { data: allowed, error } = await db.rpc("take_recommendation_quota", { p_ip_hash: ipHash });
+  // Only the server can take quota: the function requires the 'ai-review' job token.
+  const token = process.env.AI_REVIEW_TOKEN;
+  if (!token) return { ok: false, message: "AI features aren't switched on yet." };
+  const { data: allowed, error } = await db.rpc("take_recommendation_quota", { p_token: token, p_ip_hash: ipHash });
   if (error) return { ok: false, message: "Something went wrong. Please try again." };
   if (!allowed) return { ok: false, message: "You've reached the limit for AI requests. Please try again in an hour." };
   return { ok: true };
