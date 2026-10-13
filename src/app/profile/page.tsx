@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BookOpen } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -53,6 +54,20 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
           </CardContent>
         </Card>
         <div className="space-y-10 lg:col-span-3">
+          {(user.profile?.role === "moderator" || user.profile?.role === "admin") && (
+            <Link
+              href="/profile/moderator-manual"
+              className="hover:bg-accent flex items-center gap-3 rounded-xl border p-4"
+            >
+              <BookOpen className="text-primary size-6 shrink-0" aria-hidden />
+              <span>
+                <span className="block font-medium">Moderator manual</span>
+                <span className="text-muted-foreground block text-sm">
+                  How to review suggestions, verify dive sites step by step, and moderate community content.
+                </span>
+              </span>
+            </Link>
+          )}
           {contributor === "accepted" && (
             <Alert variant="success">
               <AlertDescription>
