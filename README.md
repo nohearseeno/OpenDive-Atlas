@@ -2,6 +2,8 @@
 
 A community-maintained atlas of the world's dive sites, marine life, and local diving knowledge.
 
+**Live site: [opendiveatlas.org](https://opendiveatlas.org)**
+
 OpenDive Atlas is an open-source web app that helps scuba divers **discover dive sites**, **learn which marine life lives there**, and **contribute sightings, photos and ratings**.
 
 > Open the app → explore the global map → pick a dive site → see what lives there → browse photos → log a sighting → help the community.
