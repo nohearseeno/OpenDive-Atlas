@@ -31,17 +31,17 @@ export default async function AdminHome() {
     Promise.all([count("sightings", "rejected"), count("reviews", "rejected"), count("photos", "rejected")]).then((v) =>
       v.reduce((a, b) => a + b, 0),
     ),
-    isAdmin(user) ? createSupabaseServerClient().then(countPendingSuggestions) : Promise.resolve(0),
+    createSupabaseServerClient().then(countPendingSuggestions),
   ]);
   const cards = [
-    { label: "Dive sites", value: sites, href: isAdmin(user) ? "/admin/sites" : undefined },
+    { label: "Dive sites", value: sites, href: "/admin/sites" },
     { label: "Species", value: species, href: isAdmin(user) ? "/admin/species" : undefined },
     { label: "Sightings", value: sightings, href: "/admin/moderation?tab=sightings" },
     { label: "Reviews", value: reviews, href: "/admin/moderation?tab=reviews" },
     { label: "Photos", value: photos, href: "/admin/moderation?tab=photos" },
     { label: "Pending review", value: pending, href: "/admin/moderation?status=pending" },
     { label: "Hidden content", value: hidden, href: "/admin/moderation?status=rejected" },
-    ...(isAdmin(user) ? [{ label: "Site suggestions waiting", value: suggestions, href: "/admin/suggestions" }] : []),
+    { label: "Site suggestions waiting", value: suggestions, href: "/admin/suggestions" },
   ];
   return (
     <>

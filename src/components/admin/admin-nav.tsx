@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Overview", adminOnly: false },
-  { href: "/admin/sites", label: "Dive sites", adminOnly: true },
+  { href: "/admin/sites", label: "Dive sites", adminOnly: false },
   { href: "/admin/species", label: "Species", adminOnly: true },
   { href: "/admin/photos", label: "Photos", adminOnly: true },
-  { href: "/admin/suggestions", label: "Suggestions", adminOnly: true },
+  { href: "/admin/suggestions", label: "Suggestions", adminOnly: false },
   { href: "/admin/moderation", label: "Moderation", adminOnly: false },
 ];
 

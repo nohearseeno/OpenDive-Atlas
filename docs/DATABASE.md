@@ -13,6 +13,7 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000009_site_verification_and_suggestions.sql` | `dive_sites.is_verified`, `site_suggestions` table + RLS |
 | `migrations/20261013000010_starter_dive_sites.sql` | 211 unverified starter dive sites across all regions |
 | `migrations/20261013000011_consolidate_policies.sql` | Merges owner/moderator policies into one per action (performance) |
+| `migrations/20261013000012_moderator_site_permissions.sql` | Moderators can read drafts, add and edit dive sites, and review site suggestions |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD
@@ -151,13 +152,13 @@ All tables have RLS enabled. Helper functions `private.is_admin()` and `private.
 | Table | Select | Insert | Update | Delete |
 | --- | --- | --- | --- | --- |
 | profiles | everyone | via signup trigger only | self; admin (any) | — (cascades from auth.users) |
-| dive_sites | published, or admin | admin | admin | admin |
+| dive_sites | published, or moderator | moderator | moderator | admin |
 | species | everyone | admin | admin | admin |
 | site_species | everyone | admin | admin | admin |
 | sightings | approved, own, or moderator | self (`user_id = auth.uid()`) | own; moderator | own; moderator |
 | photos | approved, own, or moderator | self, own storage folder, own sighting; admin (any incl. external URLs) | own; moderator | own; moderator |
 | reviews | approved, own, or moderator | self | own; moderator | own; moderator |
-| site_suggestions | own, or moderator | self (forced `pending`) | admin | own while pending; admin |
+| site_suggestions | own, or moderator | self (forced `pending`) | moderator | own while pending; admin |
 
 ### Guard triggers
 

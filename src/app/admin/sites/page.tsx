@@ -3,14 +3,14 @@ import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
-import { requireAdmin } from "@/application/session";
+import { requireModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { listDiveSitesForAdmin } from "@/infrastructure/repositories/dive-sites";
 import { EXPERIENCE_LABELS } from "@/domain/constants";
 import { formatDate } from "@/lib/utils";
 
 export default async function AdminSitesPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  await requireAdmin("/admin/sites");
+  await requireModerator("/admin/sites");
   const { saved } = await searchParams;
   const sites = await listDiveSitesForAdmin(await createSupabaseServerClient());
   return (

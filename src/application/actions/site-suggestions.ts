@@ -15,7 +15,7 @@ import {
   siteFieldValues,
 } from "@/infrastructure/repositories/site-suggestions";
 import { slugify } from "@/lib/utils";
-import { getSessionUser, isAdmin } from "../session";
+import { getSessionUser, isModerator } from "../session";
 import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
 
 function readSiteFields(form: FormData) {
@@ -94,10 +94,10 @@ export async function withdrawSuggestionAction(form: FormData): Promise<void> {
   revalidatePath("/admin/suggestions");
 }
 
-/** Admin: approve (apply) or reject a suggestion. */
+/** Moderator/admin: approve (apply) or reject a suggestion. */
 export async function reviewSuggestionAction(_prev: ActionState, form: FormData): Promise<ActionState> {
   const user = await getSessionUser();
-  if (!isAdmin(user)) return { ok: false, message: "Admin access required." };
+  if (!isModerator(user)) return { ok: false, message: "Moderator access required." };
   const parsed = suggestionReviewSchema.safeParse({
     id: str(form, "id"),
     decision: str(form, "decision"),

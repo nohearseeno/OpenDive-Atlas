@@ -17,7 +17,7 @@ import { SightingList } from "@/components/sightings/sighting-list";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { ReviewList } from "@/components/reviews/review-list";
 import { SiteLocationMap } from "@/components/map/site-location-map";
-import { getSessionUser, isAdmin, isModerator } from "@/application/session";
+import { getSessionUser, isModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteBySlug, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
 import { getSpeciesCoverPhotos } from "@/infrastructure/repositories/species";
@@ -120,7 +120,7 @@ export default async function SitePage({ params, searchParams }: Props) {
                 <PencilLine /> Suggest an edit
               </Link>
             </Button>
-            {isAdmin(user) && (
+            {isModerator(user) && (
               <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
                 <Link href={`/admin/sites/${site.id}`}>Edit</Link>
               </Button>
@@ -132,7 +132,7 @@ export default async function SitePage({ params, searchParams }: Props) {
       {suggestionSent && (
         <Alert variant="success" className="mb-6">
           <CheckCircle2 />
-          <AlertDescription>Thanks! Your suggestion was sent. An admin will review it before the page changes.</AlertDescription>
+          <AlertDescription>Thanks! Your suggestion was sent. A moderator will review it before the page changes.</AlertDescription>
         </Alert>
       )}
       {!site.isVerified && !suggestionSent && (
