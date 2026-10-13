@@ -20,6 +20,8 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { ReviewList } from "@/components/reviews/review-list";
 import { SiteLocationMap } from "@/components/map/site-location-map";
 import { AddToTripButton } from "@/components/trip/add-to-trip-button";
+import { JsonLd } from "@/components/shared/json-ld";
+import { siteUrl } from "@/lib/utils";
 import { getSessionUser, isModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteBySlug, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
@@ -70,8 +72,32 @@ export default async function SitePage({ params, searchParams }: Props) {
   // When the community has not uploaded site photos yet, show the marine life you may meet here.
   const galleryPhotos = photos.length ? photos : siteSpecies.flatMap((s) => covers.get(s.species.id) ?? []).slice(0, 8);
 
+  const structured = {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    name: site.name,
+    description: site.description,
+    url: siteUrl(`/sites/${site.slug}`),
+    touristType: "Scuba divers",
+    geo: { "@type": "GeoCoordinates", latitude: site.latitude, longitude: site.longitude },
+    address: { "@type": "PostalAddress", addressRegion: site.region, addressCountry: site.country },
+    ...(galleryPhotos[0] ? { image: galleryPhotos[0].url } : {}),
+    ...(site.ratings.overall != null && site.ratings.reviewCount > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: site.ratings.overall.toFixed(1),
+            reviewCount: site.ratings.reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+  };
+
   return (
     <>
+      <JsonLd data={structured} />
       <PageBand
         eyebrow={
           <nav aria-label="Breadcrumb" className="flex items-center gap-1">

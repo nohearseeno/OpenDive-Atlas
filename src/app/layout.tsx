@@ -4,6 +4,7 @@ import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { UnitsProvider } from "@/components/units/units-provider";
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "OpenDive Atlas",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -51,6 +53,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteFooter />
         </UnitsProvider>
         <Toaster richColors position="top-center" />
+        {/* Cookie-free page-view counts (Vercel Web Analytics); does nothing until enabled for the project. */}
+        <Analytics />
       </body>
     </html>
   );

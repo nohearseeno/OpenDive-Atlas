@@ -328,6 +328,36 @@ export type Database = {
           },
         ];
       };
+      moderator_applications: {
+        Row: {
+          id: string;
+          user_id: string;
+          about: string;
+          regions: string | null;
+          status: "pending" | "approved" | "declined";
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          about: string;
+          regions?: string | null;
+        };
+        // Reviews go through review_moderator_application().
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: "moderator_applications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       trips: {
         Row: {
           id: string;
@@ -579,6 +609,10 @@ export type Database = {
       take_recommendation_quota: {
         Args: { p_ip_hash: string };
         Returns: boolean;
+      };
+      review_moderator_application: {
+        Args: { application_id: string; approve: boolean; reviewer_note?: string | null };
+        Returns: string;
       };
       get_cached_recommendation: {
         Args: { p_token: string; p_hash: string };

@@ -125,7 +125,9 @@ Every account has one role, stored in `profiles.role`. Each role includes everyt
 
 Moderators and admins both reach the staff area at `/admin`. Moderators see Overview, Dive sites, Suggestions and Moderation; admins also see Species and Photos.
 
-There is no role-management screen yet. An admin changes a role in the Supabase SQL editor:
+**Volunteer moderators.** Signed-in divers can apply at `/contribute/moderate`. Admins review applications under **Admin → Volunteers**, where each one shows the diver's approved site suggestions and sightings; approving promotes them to `moderator` straight away. `/contribute` explains every way to help and is the page to share when inviting people.
+
+There is no general role-management screen. An admin can also change a role in the Supabase SQL editor:
 
 ```sql
 update public.profiles set role = 'moderator' where username = 'their_username';  -- promote

@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- hero photo is served from Supabase Storage */
+import { siteUrl } from "@/lib/utils";
+import { JsonLd } from "@/components/shared/json-ld";
 import Link from "next/link";
 import { ArrowRight, Camera, Fish, Map, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +61,20 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "OpenDive Atlas",
+          url: siteUrl(),
+          description: "A free, open-source community atlas of dive sites, marine life and diver sightings.",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: { "@type": "EntryPoint", urlTemplate: `${siteUrl("/sites")}?q={search_term_string}` },
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
       <section className="bg-reef-hole text-cream relative isolate overflow-hidden">
         {hero ? (
           <img src={hero.url} alt="" aria-hidden className="absolute inset-0 -z-20 size-full object-cover object-[center_45%]" />
