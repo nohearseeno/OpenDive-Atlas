@@ -54,30 +54,39 @@ export function hydrate(stored: StoredRecommendation, sites: DiveSiteSummary[]):
 
 // --- Shared 24-hour cache (token-guarded; visitors can't read it directly) ---
 
-export async function getCachedRecommendation(query: string): Promise<StoredRecommendation | null> {
+/** Reads any cached AI answer by key (recommendations use the query; trip notes use "trip:" + the route). */
+export async function getCachedJson(key: string): Promise<unknown> {
   const token = process.env.AI_REVIEW_TOKEN;
   if (!token) return null;
   const { data, error } = await createAnonSupabase().rpc("get_cached_recommendation", {
     p_token: token,
-    p_hash: queryHash(query),
+    p_hash: queryHash(key),
   });
   if (error) {
-    console.error("[recommend] cache read:", error.message);
+    console.error("[ai-cache] read:", error.message);
     return null;
   }
-  return parseStored(data);
+  return data;
 }
 
-export async function cacheRecommendation(query: string, result: StoredRecommendation): Promise<void> {
+export async function cacheJson(key: string, value: object): Promise<void> {
   const token = process.env.AI_REVIEW_TOKEN;
   if (!token) return;
   const { error } = await createAnonSupabase().rpc("save_recommendation", {
     p_token: token,
-    p_hash: queryHash(query),
-    p_query: query,
-    p_result: result as unknown as Json,
+    p_hash: queryHash(key),
+    p_query: key.slice(0, 600),
+    p_result: value as unknown as Json,
   });
-  if (error) console.error("[recommend] cache write:", error.message);
+  if (error) console.error("[ai-cache] write:", error.message);
+}
+
+export async function getCachedRecommendation(query: string): Promise<StoredRecommendation | null> {
+  return parseStored(await getCachedJson(query));
+}
+
+export async function cacheRecommendation(query: string, result: StoredRecommendation): Promise<void> {
+  await cacheJson(query, result);
 }
 
 // --- Per-diver history (RLS: divers only see their own) ---

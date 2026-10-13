@@ -19,6 +19,7 @@ import { SightingList } from "@/components/sightings/sighting-list";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { ReviewList } from "@/components/reviews/review-list";
 import { SiteLocationMap } from "@/components/map/site-location-map";
+import { AddToTripButton } from "@/components/trip/add-to-trip-button";
 import { getSessionUser, isModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteBySlug, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
@@ -112,6 +113,7 @@ export default async function SitePage({ params, searchParams }: Props) {
                 <Plus /> Log a sighting here
               </Link>
             </Button>
+            <AddToTripButton slug={site.slug} name={site.name} variant="cream" size="default" />
             <Button asChild variant="cream">
               <Link href="#ratings">
                 <Star /> Rate this site

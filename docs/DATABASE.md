@@ -196,6 +196,10 @@ Find my dive answers are cached in `recommendation_results` for 24 hours, keyed 
 
 `recommendation_history` keeps each signed-in diver's own searches with a copy of the result (RLS: own rows only, select/insert/delete). A trigger keeps the 30 most recent per diver.
 
+### Trips
+
+`trips` holds saved itineraries: `title`, `sites` (array of `{slug, days}`, at most 25), `settings` (start date, home airport, experience level), the last generated `plan`, and `is_shared`. RLS lets divers read, create, update and delete their own trips, and lets anyone read a trip whose owner turned on `is_shared` (the share link is unlisted). The `trips_before_write` trigger caps trips at 50 per diver, keeps `updated_at` current, and stops `user_id` and `created_at` from being changed. Cached AI trip notes live in `recommendation_results` under a `trip:` key.
+
 ### Top Contributor invitations
 
 1. The trigger above creates the invitation.

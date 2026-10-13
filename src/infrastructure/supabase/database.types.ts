@@ -328,6 +328,44 @@ export type Database = {
           },
         ];
       };
+      trips: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          sites: Json;
+          settings: Json;
+          plan: Json | null;
+          is_shared: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          title: string;
+          sites?: Json;
+          settings?: Json;
+          plan?: Json | null;
+          is_shared?: boolean;
+        };
+        Update: {
+          title?: string;
+          sites?: Json;
+          settings?: Json;
+          plan?: Json | null;
+          is_shared?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trips_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       recommendation_history: {
         Row: {
           id: string;

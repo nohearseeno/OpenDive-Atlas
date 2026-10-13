@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet.markercluster";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import type { DiveSiteMarker } from "@/domain/entities";
 import { DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
+import { addToTripWithToast } from "@/components/trip/add-to-trip-button";
+import { tripActions } from "@/components/trip/trip-store";
 import { LEVEL_COLORS, TILE_ATTRIBUTION, TILE_URL } from "./map-config";
 
 export interface DiveMapProps {
@@ -70,6 +73,7 @@ function popupHtml(m: DiveSiteMarker) {
       <p class="dive-popup-meta">${escape(types)} — ${EXPERIENCE_LABELS[m.experienceLevel]}${depth}</p>
       ${unverified}
       <a href="/sites/${encodeURIComponent(m.slug)}">View site &amp; marine life →</a>
+      <button type="button" class="dive-popup-trip" data-trip-slug="${escape(m.slug)}" data-trip-name="${escape(m.name)}" aria-pressed="false">+ Add to trip</button>
     </div>`;
 }
 
@@ -81,6 +85,7 @@ function ClusteredMarkers({
   fitToMarkers,
 }: Pick<DiveMapProps, "markers" | "selectedSlug" | "onSelect" | "showPopups" | "fitToMarkers">) {
   const map = useMap();
+  const router = useRouter();
   const groupRef = useRef<L.MarkerClusterGroup | null>(null);
   const bySlug = useRef(new Map<string, L.Marker>());
   const onSelectRef = useRef(onSelect);
@@ -114,6 +119,34 @@ function ClusteredMarkers({
       groupRef.current = null;
     };
   }, [map, markers, showPopups, fitToMarkers]);
+
+  // "Add to trip" buttons inside popups (plain HTML, so handled by delegation).
+  useEffect(() => {
+    const container = map.getContainer();
+    const show = (btn: HTMLElement, inTrip: boolean) => {
+      btn.setAttribute("aria-pressed", String(inTrip));
+      btn.textContent = inTrip ? "✓ In your trip" : "+ Add to trip";
+    };
+    const onClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-trip-slug]");
+      if (!btn) return;
+      const site = { slug: btn.dataset.tripSlug!, name: btn.dataset.tripName ?? "" };
+      if (btn.getAttribute("aria-pressed") === "true") tripActions.remove(site.slug);
+      else addToTripWithToast(site, () => router.push("/trip"));
+      show(btn, btn.getAttribute("aria-pressed") !== "true");
+    };
+    const onOpen = (e: L.PopupEvent) => {
+      const btn = e.popup.getElement()?.querySelector<HTMLElement>("[data-trip-slug]");
+      if (!btn) return;
+      show(btn, tripActions.has(btn.dataset.tripSlug!));
+    };
+    container.addEventListener("click", onClick);
+    map.on("popupopen", onOpen);
+    return () => {
+      container.removeEventListener("click", onClick);
+      map.off("popupopen", onOpen);
+    };
+  }, [map, router]);
 
   // Highlight and reveal the selected site.
   useEffect(() => {

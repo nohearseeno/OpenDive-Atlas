@@ -14,6 +14,7 @@ export function MobileNav({ signedIn, isStaff }: { signedIn: boolean; isStaff: b
     ...(signedIn
       ? [
           { href: "/sightings/new", label: "Log a sighting" },
+          { href: "/trips", label: "My trips" },
           { href: "/profile", label: "My profile" },
         ]
       : [
