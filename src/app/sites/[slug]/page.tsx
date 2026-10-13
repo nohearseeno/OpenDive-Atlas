@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, Camera, CheckCircle2, ChevronRight, Fish, Plus, Star } from "lucide-react";
+import { AlertTriangle, Camera, CheckCircle2, ChevronRight, Fish, PencilLine, Plus, Star } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageBand } from "@/components/shared/page-band";
+import { UnverifiedNotice } from "@/components/suggestions/unverified-notice";
 import { SiteFacts } from "@/components/sites/site-facts";
 import { SiteSpeciesList } from "@/components/sites/site-species-list";
 import { RatingSummary } from "@/components/sites/rating-summary";
@@ -44,7 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SitePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const flash = (await searchParams).sighting;
+  const query = await searchParams;
+  const flash = query.sighting;
+  const suggestionSent = query.suggestion === "sent";
   const db = await createSupabaseServerClient();
   const site = await getDiveSiteBySlug(db, slug);
   if (!site) notFound();
@@ -96,6 +99,7 @@ export default async function SitePage({ params, searchParams }: Props) {
                 </span>
               )}
               {!site.isPublished && <Badge variant="destructive">Unpublished</Badge>}
+              {!site.isVerified && <Badge className="bg-cream/15 text-cream border-cream/30">Unverified starter entry</Badge>}
             </div>
           </div>
         }
@@ -111,6 +115,11 @@ export default async function SitePage({ params, searchParams }: Props) {
                 <Star /> Rate this site
               </Link>
             </Button>
+            <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
+              <Link href={`/sites/${site.slug}/suggest`}>
+                <PencilLine /> Suggest an edit
+              </Link>
+            </Button>
             {isAdmin(user) && (
               <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
                 <Link href={`/admin/sites/${site.id}`}>Edit</Link>
@@ -120,6 +129,17 @@ export default async function SitePage({ params, searchParams }: Props) {
         }
       />
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      {suggestionSent && (
+        <Alert variant="success" className="mb-6">
+          <CheckCircle2 />
+          <AlertDescription>Thanks! Your suggestion was sent. An admin will review it before the page changes.</AlertDescription>
+        </Alert>
+      )}
+      {!site.isVerified && !suggestionSent && (
+        <div className="mb-6">
+          <UnverifiedNotice slug={site.slug} />
+        </div>
+      )}
       {flash === "created" && (
         <Alert variant="success" className="mb-6">
           <CheckCircle2 />

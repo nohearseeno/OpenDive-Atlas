@@ -37,6 +37,11 @@ export function SiteCard({ site }: { site: DiveSiteSummary }) {
           <Badge variant={site.experienceLevel === "advanced" ? "coral" : "reef"}>
             {EXPERIENCE_LABELS[site.experienceLevel]}
           </Badge>
+          {!site.isVerified && (
+            <Badge variant="outline" className="text-muted-foreground" title="Starter entry: details not yet confirmed by a diver">
+              Unverified
+            </Badge>
+          )}
         </div>
         <dl className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
           <div className="flex items-center gap-1">

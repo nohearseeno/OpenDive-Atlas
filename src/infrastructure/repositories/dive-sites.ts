@@ -80,6 +80,7 @@ function toRow(input: DiveSiteInput) {
     description: input.description,
     access_notes: input.accessNotes,
     is_published: input.isPublished,
+    is_verified: input.isVerified,
   };
 }
 

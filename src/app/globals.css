@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "leaflet/dist/leaflet.css";
+@import "leaflet.markercluster/dist/MarkerCluster.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,3 +118,19 @@
   background: transparent;
   border: none;
 }
+.dive-cluster {
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--wall) 88%, transparent);
+  color: var(--cream);
+  font: 600 13px/1 var(--font-sans);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--fin) 45%, transparent), 0 2px 6px rgb(0 0 0 / 0.3);
+}
+.dive-popup { min-width: 11rem; display: grid; gap: 0.25rem; }
+.dive-popup p { margin: 0 !important; }
+.dive-popup-name { font: 600 1rem/1.25 var(--font-display); }
+.dive-popup-place { color: var(--muted-foreground); font-size: 0.75rem; }
+.dive-popup-meta { font-size: 0.75rem; }
+.dive-popup-flag { color: var(--sponge-ink); font-size: 0.75rem; font-weight: 500; }
+.dive-popup a { color: var(--wall); font-weight: 500; padding-top: 0.25rem; }

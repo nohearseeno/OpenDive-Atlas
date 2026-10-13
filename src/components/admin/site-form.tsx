@@ -125,6 +125,10 @@ export function SiteForm({ site }: { site?: DiveSite }) {
         <input type="checkbox" name="isPublished" defaultChecked={site?.isPublished ?? true} className="size-4" />
         Published (visible to everyone)
       </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="isVerified" defaultChecked={site?.isVerified ?? true} className="size-4" />
+        Verified (details confirmed; hides the &ldquo;unverified starter entry&rdquo; notice)
+      </label>
       <div>
         <SubmitButton pendingLabel="Saving…">{site ? "Save changes" : "Create dive site"}</SubmitButton>
       </div>

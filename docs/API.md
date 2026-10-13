@@ -39,7 +39,7 @@ curl "https://<host>/api/sites?type=wreck&level=advanced"
       "diveTypes": ["wreck", "boat"], "experienceLevel": "advanced",
       "visibilityM": { "min": 10, "max": 30 }, "temperatureC": { "min": 18, "max": 29 },
       "maxDepthM": 65, "typicalCurrent": "moderate",
-      "description": "…", "accessNotes": "…", "isPublished": true, "updatedAt": "…",
+      "description": "…", "accessNotes": "…", "isPublished": true, "isVerified": true, "updatedAt": "…",
       "ratings": { "reviewCount": 0, "marineLife": null, "visibility": null, "photography": null, "difficulty": null, "overall": null },
       "sightingCount": 0, "speciesCount": 5
     }
@@ -96,6 +96,10 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `addSiteSpeciesAction` / `removeSiteSpeciesAction` | admin | siteId, speciesId, frequency, notes | Curates "commonly sighted" list |
 | `saveSpeciesAction` / `deleteSpeciesAction` | admin | species fields (+ id) | Manages species |
 | `addExternalPhotoAction` | admin | externalUrl, siteId/speciesId, caption, attribution, license, sourceUrl | Adds a licensed reference photo |
+| `suggestSiteEditAction` | signed in | siteId, site fields, note, confirm | Stores only the changed fields as a pending suggestion |
+| `suggestNewSiteAction` | signed in | site fields, note | Stores a pending new-site suggestion |
+| `withdrawSuggestionAction` | author (pending) / admin | id | Deletes the suggestion |
+| `reviewSuggestionAction` | admin | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |
 | `deletePhotoAction` | owner / moderator | id | Deletes a photo and its storage object |
 

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { isAdmin, requireModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
+import { countPendingSuggestions } from "@/infrastructure/repositories/site-suggestions";
 
 type CountedTable = "dive_sites" | "species" | "sightings" | "reviews" | "photos";
 
@@ -18,7 +19,7 @@ async function count(table: CountedTable, status?: "rejected" | "pending") {
 
 export default async function AdminHome() {
   const user = await requireModerator();
-  const [sites, species, sightings, reviews, photos, pending, hidden] = await Promise.all([
+  const [sites, species, sightings, reviews, photos, pending, hidden, suggestions] = await Promise.all([
     count("dive_sites"),
     count("species"),
     count("sightings"),
@@ -30,6 +31,7 @@ export default async function AdminHome() {
     Promise.all([count("sightings", "rejected"), count("reviews", "rejected"), count("photos", "rejected")]).then((v) =>
       v.reduce((a, b) => a + b, 0),
     ),
+    isAdmin(user) ? createSupabaseServerClient().then(countPendingSuggestions) : Promise.resolve(0),
   ]);
   const cards = [
     { label: "Dive sites", value: sites, href: isAdmin(user) ? "/admin/sites" : undefined },
@@ -39,6 +41,7 @@ export default async function AdminHome() {
     { label: "Photos", value: photos, href: "/admin/moderation?tab=photos" },
     { label: "Pending review", value: pending, href: "/admin/moderation?status=pending" },
     { label: "Hidden content", value: hidden, href: "/admin/moderation?status=rejected" },
+    ...(isAdmin(user) ? [{ label: "Site suggestions waiting", value: suggestions, href: "/admin/suggestions" }] : []),
   ];
   return (
     <>

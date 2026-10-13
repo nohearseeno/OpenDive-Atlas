@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Map } from "lucide-react";
+import { CheckCircle2, Map, Plus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Pagination } from "@/components/shared/pagination";
 import { Button } from "@/components/ui/button";
 import { PageBand } from "@/components/shared/page-band";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -17,11 +19,16 @@ export const metadata: Metadata = {
   description: "Browse dive sites with depth, visibility, temperature, current and marine life information.",
 };
 
+const PAGE_SIZE = 24;
+
 export default async function SitesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
   const filters = parseSiteFilters(params);
   const configured = isSupabaseConfigured();
-  const sites = configured ? await searchDiveSites(await createSupabaseServerClient(), filters) : [];
+  const allSites = configured ? await searchDiveSites(await createSupabaseServerClient(), filters) : [];
+  const pageCount = Math.max(1, Math.ceil(allSites.length / PAGE_SIZE));
+  const page = Math.min(pageCount, Math.max(1, Number.parseInt(String(params.page ?? "1"), 10) || 1));
+  const sites = allSites.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const mapParams = new URLSearchParams();
   if (filters.q) mapParams.set("q", filters.q);
   if (filters.types.length) mapParams.set("type", filters.types.join(","));
@@ -34,11 +41,18 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
         title="Dive sites"
         description="Every site lists conditions, experience level and the marine life divers commonly see there."
         actions={
-          <Button asChild variant="cream">
-            <Link href={mapHref}>
-              <Map /> View on map
-            </Link>
-          </Button>
+          <>
+            <Button asChild variant="cream">
+              <Link href={mapHref}>
+                <Map /> View on map
+              </Link>
+            </Button>
+            <Button asChild variant="fin">
+              <Link href="/sites/suggest">
+                <Plus /> Suggest a dive site
+              </Link>
+            </Button>
+          </>
         }
       />
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -47,8 +61,15 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
       ) : (
         <div className="space-y-6">
           <SiteFilters initialQ={filters.q} initialTypes={filters.types} initialLevels={filters.levels} />
+          {params.suggestion === "sent" && (
+            <Alert variant="success">
+              <CheckCircle2 />
+              <AlertDescription>Thanks! Your suggested site was sent for review.</AlertDescription>
+            </Alert>
+          )}
           <p className="text-muted-foreground text-sm" aria-live="polite">
-            {sites.length} {sites.length === 1 ? "site" : "sites"}
+            {allSites.length} {allSites.length === 1 ? "site" : "sites"}
+            {pageCount > 1 && ` · showing ${(page - 1) * PAGE_SIZE + 1}–${(page - 1) * PAGE_SIZE + sites.length}`}
           </p>
           {sites.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -56,6 +77,9 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
                 <SiteCard key={site.id} site={site} />
               ))}
             </div>
+          ) : null}
+          {sites.length ? (
+            <Pagination page={page} pageCount={pageCount} basePath="/sites" params={mapParams} />
           ) : (
             <EmptyState icon={<Map />} title="No dive sites match your filters">
               Try removing a filter or searching for a country instead.

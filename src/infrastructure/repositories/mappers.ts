@@ -33,6 +33,7 @@ export function toDiveSite(row: Tables<"dive_sites">): DiveSite {
     description: row.description,
     accessNotes: row.access_notes,
     isPublished: row.is_published,
+    isVerified: row.is_verified,
     updatedAt: row.updated_at,
   };
 }
@@ -66,6 +67,7 @@ export function toMarker(site: DiveSiteSummary): DiveSiteMarker {
     experienceLevel: site.experienceLevel,
     maxDepthM: site.maxDepthM,
     ratingOverall: site.ratings.overall,
+    isVerified: site.isVerified,
   };
 }
 

@@ -15,6 +15,12 @@ OpenDive Atlas is built in small, shippable phases. Items are roughly ordered by
 - Public read-only JSON/GeoJSON API
 - RLS-secured schema, migrations, seed data, CI
 
+## ✅ v0.1.1
+
+- 211 unverified starter dive sites worldwide
+- Community "Suggest an edit" and "Suggest a dive site" with admin review
+- Map marker clustering and directory pagination
+
 ## v0.2 — Quality & trust
 
 - [ ] User-facing "report content" flow feeding the moderation queue
@@ -22,7 +28,6 @@ OpenDive Atlas is built in small, shippable phases. Items are roughly ordered by
 - [ ] Rate limiting on submissions (Postgres function or edge middleware)
 - [ ] Automated tests: Vitest for domain/application, Playwright E2E for the core diver journey, pgTAP for RLS
 - [ ] Image processing: server-side resizing/thumbnails, EXIF stripping (privacy)
-- [ ] Marker clustering for dense regions
 
 ## v0.3 — Richer discovery
 

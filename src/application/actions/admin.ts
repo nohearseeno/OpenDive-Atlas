@@ -59,6 +59,7 @@ export async function saveDiveSiteAction(_prev: ActionState, form: FormData): Pr
     description: str(form, "description"),
     accessNotes: str(form, "accessNotes"),
     isPublished: form.get("isPublished") === "on",
+    isVerified: form.get("isVerified") === "on",
   });
   if (!parsed.success) return fromZodError(parsed.error);
 
