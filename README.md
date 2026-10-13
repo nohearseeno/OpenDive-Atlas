@@ -21,7 +21,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | ⭐ **Ratings & reviews** | Rate marine life, visibility, photography and difficulty; aggregated per site |
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
 | ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
-| 🐟 **Top Contributors** | Divers with more than 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
+| 🐟 **Top Contributors** | Divers with 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
 | 🛡️ **Moderation & admin** | Moderators review site suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
 
@@ -96,9 +96,9 @@ A database trigger stops anyone who isn't an admin from changing a role, includi
 
 ### Top Contributor Moderators
 
-Divers can also earn the moderator role. Once more than 50 of a diver's **new dive site** suggestions have been approved, they are invited to become a **Top Contributor Moderator**. Approved edits to existing sites don't count.
+Divers can also earn the moderator role. Once 50 of a diver's **new dive site** suggestions have been approved, they are invited to become a **Top Contributor Moderator**. Approved edits to existing sites don't count.
 
-1. **Invitation.** The approval that pushes them past 50 creates the invitation automatically. They get an email (via [Resend](https://resend.com), see [DEPLOYMENT.md](docs/DEPLOYMENT.md#top-contributor-invitation-emails)), and the invitation also appears on their profile page.
+1. **Invitation.** The 50th approval creates the invitation automatically. They get an email (via [Resend](https://resend.com), see [DEPLOYMENT.md](docs/DEPLOYMENT.md#top-contributor-invitation-emails)), and the invitation also appears on their profile page.
 2. **Accepting.** The email link opens `/contributor/invite/<id>`. After signing in, they click **Accept invitation**. Nothing changes until they do; opening the link alone doesn't accept.
 3. **Result.** Accepting adds a squirrelfish badge to their avatar wherever it appears, and promotes them from `user` to `moderator`. A diver who is already a moderator or admin keeps their role and just gets the badge.
 
