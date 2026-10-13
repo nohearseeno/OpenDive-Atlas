@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageBand } from "@/components/shared/page-band";
+import { ShoalBasePanel } from "@/components/shoalbase/shoalbase-link";
 import { SiteFacts } from "@/components/sites/site-facts";
 import { SiteSpeciesList } from "@/components/sites/site-species-list";
 import { RatingSummary } from "@/components/sites/rating-summary";
@@ -18,7 +20,7 @@ import { SiteLocationMap } from "@/components/map/site-location-map";
 import { getSessionUser, isAdmin, isModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteBySlug, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
-import { getSpeciesCoverPhotos } from "@/infrastructure/repositories/species";
+import { getSpeciesBySlug, getSpeciesCoverPhotos } from "@/infrastructure/repositories/species";
 import { listSitePhotos } from "@/infrastructure/repositories/photos";
 import { listSightings } from "@/infrastructure/repositories/sightings";
 import { getUserReviewForSite, listReviews } from "@/infrastructure/repositories/reviews";
@@ -43,7 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SitePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const flash = (await searchParams).sighting;
+  const query = await searchParams;
+  const flash = query.sighting;
+  const loggedSpeciesSlug = typeof query.species === "string" ? query.species : null;
   const db = await createSupabaseServerClient();
   const site = await getDiveSiteBySlug(db, slug);
   if (!site) notFound();
@@ -56,6 +60,8 @@ export default async function SitePage({ params, searchParams }: Props) {
     listReviews(db, { siteId: site.id, limit: 20 }),
     user ? getUserReviewForSite(db, site.id, user.id) : Promise.resolve(null),
   ]);
+  const loggedSpecies =
+    flash === "created" && loggedSpeciesSlug ? await getSpeciesBySlug(db, loggedSpeciesSlug) : null;
   const covers = await getSpeciesCoverPhotos(
     db,
     siteSpecies.map((s) => s.species.id),
@@ -64,69 +70,75 @@ export default async function SitePage({ params, searchParams }: Props) {
   const galleryPhotos = photos.length ? photos : siteSpecies.flatMap((s) => covers.get(s.species.id) ?? []).slice(0, 8);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      <nav aria-label="Breadcrumb" className="text-muted-foreground mb-4 flex items-center gap-1 text-sm">
-        <Link href="/sites" className="hover:text-foreground">
-          Dive sites
-        </Link>
-        <ChevronRight className="size-3.5" aria-hidden />
-        <span className="text-foreground truncate">{site.name}</span>
-      </nav>
-
-      {flash === "created" && (
-        <Alert variant="success" className="mb-6">
-          <CheckCircle2 />
-          <AlertDescription>Thanks! Your sighting has been added.</AlertDescription>
-        </Alert>
-      )}
-
-      <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{site.name}</h1>
-          <p className="text-muted-foreground">
-            {site.region}, {site.country}
-          </p>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {site.diveTypes.map((t) => (
-              <Badge key={t} variant="secondary">
-                {DIVE_TYPE_LABELS[t]}
+    <>
+      <PageBand
+        eyebrow={
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1">
+            <Link href="/sites" className="hover:underline">
+              Dive sites
+            </Link>
+            <ChevronRight className="size-3.5" aria-hidden />
+            <span className="text-cream/80">{site.country}</span>
+          </nav>
+        }
+        title={site.name}
+        description={
+          <div className="space-y-3">
+            <p>{site.region}, {site.country}</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {site.diveTypes.map((t) => (
+                <Badge key={t} className="bg-cream/15 text-cream border-cream/30">
+                  {DIVE_TYPE_LABELS[t]}
+                </Badge>
+              ))}
+              <Badge variant={site.experienceLevel === "advanced" ? "coral" : "reef"}>
+                {EXPERIENCE_LABELS[site.experienceLevel]}
               </Badge>
-            ))}
-            <Badge variant={site.experienceLevel === "advanced" ? "coral" : "reef"}>
-              {EXPERIENCE_LABELS[site.experienceLevel]}
-            </Badge>
-            {site.ratings.overall != null && (
-              <span className="ml-1 inline-flex items-center gap-1 text-sm">
-                <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden /> {site.ratings.overall.toFixed(1)} (
-                {site.ratings.reviewCount})
-              </span>
-            )}
-            {!site.isPublished && <Badge variant="destructive">Unpublished</Badge>}
+              {site.ratings.overall != null && (
+                <span className="ml-1 inline-flex items-center gap-1 text-sm">
+                  <Star className="size-4 fill-amber-300 text-amber-300" aria-hidden /> {site.ratings.overall.toFixed(1)} (
+                  {site.ratings.reviewCount})
+                </span>
+              )}
+              {!site.isPublished && <Badge variant="destructive">Unpublished</Badge>}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href={`/sightings/new?site=${site.slug}`}>
-              <Plus /> Log a sighting here
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="#ratings">
-              <Star /> Rate this site
-            </Link>
-          </Button>
-          {isAdmin(user) && (
-            <Button asChild variant="ghost">
-              <Link href={`/admin/sites/${site.id}`}>Edit</Link>
+        }
+        actions={
+          <>
+            <Button asChild variant="fin">
+              <Link href={`/sightings/new?site=${site.slug}`}>
+                <Plus /> Log a sighting here
+              </Link>
             </Button>
-          )}
+            <Button asChild variant="cream">
+              <Link href="#ratings">
+                <Star /> Rate this site
+              </Link>
+            </Button>
+            {isAdmin(user) && (
+              <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
+                <Link href={`/admin/sites/${site.id}`}>Edit</Link>
+              </Button>
+            )}
+          </>
+        }
+      />
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      {flash === "created" && (
+        <div className="mb-6 space-y-3">
+          <Alert variant="success">
+            <CheckCircle2 />
+            <AlertDescription>Thanks! Your sighting has been added.</AlertDescription>
+          </Alert>
+          {loggedSpecies?.category === "fish" && <ShoalBasePanel speciesName={loggedSpecies.commonName} />}
         </div>
-      </header>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-10 lg:col-span-2">
           <section aria-labelledby="about" className="space-y-4">
-            <h2 id="about" className="text-xl font-semibold">
+            <h2 id="about" className="text-wall text-2xl font-semibold">
               About this site
             </h2>
             <p className="leading-relaxed whitespace-pre-line">{site.description}</p>
@@ -144,7 +156,7 @@ export default async function SitePage({ params, searchParams }: Props) {
 
           <section aria-labelledby="marine-life" className="space-y-4">
             <div className="flex items-end justify-between gap-4">
-              <h2 id="marine-life" className="text-xl font-semibold">
+              <h2 id="marine-life" className="text-wall text-2xl font-semibold">
                 Marine life commonly seen here
               </h2>
               <span className="text-muted-foreground text-sm">{siteSpecies.length} species</span>
@@ -159,7 +171,7 @@ export default async function SitePage({ params, searchParams }: Props) {
           </section>
 
           <section aria-labelledby="photos" className="space-y-4">
-            <h2 id="photos" className="text-xl font-semibold">
+            <h2 id="photos" className="text-wall text-2xl font-semibold">
               {photos.length ? "Photo gallery" : "Marine life you may encounter"}
             </h2>
             {galleryPhotos.length ? (
@@ -173,13 +185,14 @@ export default async function SitePage({ params, searchParams }: Props) {
 
           <section id="sightings" aria-labelledby="sightings-title" className="scroll-mt-20 space-y-4">
             <div className="flex items-end justify-between gap-4">
-              <h2 id="sightings-title" className="text-xl font-semibold">
+              <h2 id="sightings-title" className="text-wall text-2xl font-semibold">
                 Recent sightings
               </h2>
               <Link href={`/sightings/new?site=${site.slug}`} className="text-primary text-sm font-medium">
                 Add yours →
               </Link>
             </div>
+            {siteSpecies.some((s) => s.species.category === "fish") && <ShoalBasePanel />}
             {sightings.length ? (
               <SightingList sightings={sightings} showSite={false} currentUserId={user?.id} canModerate={isModerator(user)} />
             ) : (
@@ -188,7 +201,7 @@ export default async function SitePage({ params, searchParams }: Props) {
           </section>
 
           <section id="ratings" aria-labelledby="ratings-title" className="scroll-mt-20 space-y-6">
-            <h2 id="ratings-title" className="text-xl font-semibold">
+            <h2 id="ratings-title" className="text-wall text-2xl font-semibold">
               Ratings & reviews
             </h2>
             <RatingSummary ratings={site.ratings} />
@@ -233,5 +246,6 @@ export default async function SitePage({ params, searchParams }: Props) {
         </aside>
       </div>
     </div>
+    </>
   );
 }

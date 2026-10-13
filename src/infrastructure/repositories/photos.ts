@@ -116,3 +116,62 @@ export async function listPhotosForModeration(
     uploaderUsername: row.profiles?.username ?? null,
   }));
 }
+
+/** Most recent featured photo, used as the homepage hero. */
+export async function getFeaturedPhoto(db: SupabaseServerClient): Promise<(Photo & { speciesName: string | null }) | null> {
+  const { data, error } = await db
+    .from("photos")
+    .select("*, species(common_name)")
+    .eq("is_featured", true)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) raise(error, "load featured photo");
+  return data ? { ...toPhoto(data), speciesName: data.species?.common_name ?? null } : null;
+}
+
+/** Curated (admin-uploaded) photos stored under site/. */
+export async function listCuratedPhotos(db: SupabaseServerClient): Promise<ModerationPhoto[]> {
+  const { data, error } = await db
+    .from("photos")
+    .select("*, dive_sites(name), species(common_name), profiles(username)")
+    .like("storage_path", "site/%")
+    .order("created_at", { ascending: false });
+  if (error) raise(error, "load curated photos");
+  return data.map((row) => ({
+    ...toPhoto(row),
+    siteName: row.dive_sites?.name ?? null,
+    speciesName: row.species?.common_name ?? null,
+    uploaderUsername: row.profiles?.username ?? null,
+  }));
+}
+
+export async function createCuratedPhoto(
+  db: SupabaseServerClient,
+  input: {
+    storagePath: string;
+    siteId: string | null;
+    speciesId: string | null;
+    caption: string | null;
+    attribution: string;
+    license: string;
+    isFeatured: boolean;
+  },
+): Promise<void> {
+  const { error } = await db.from("photos").insert({
+    storage_path: input.storagePath,
+    site_id: input.siteId,
+    species_id: input.speciesId,
+    caption: input.caption,
+    attribution: input.attribution,
+    license: input.license,
+    is_featured: input.isFeatured,
+  });
+  if (error) raise(error, "save photo");
+}
+
+export async function setPhotoFeatured(db: SupabaseServerClient, id: string, isFeatured: boolean): Promise<void> {
+  const { error } = await db.from("photos").update({ is_featured: isFeatured }).eq("id", id);
+  if (error) raise(error, "update photo");
+}

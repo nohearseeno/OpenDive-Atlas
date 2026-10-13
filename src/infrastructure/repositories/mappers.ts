@@ -95,6 +95,7 @@ export function toPhoto(row: Tables<"photos">): Photo {
     sightingId: row.sighting_id,
     storagePath: row.storage_path,
     uploadedBy: row.uploaded_by,
+    isFeatured: row.is_featured,
     createdAt: row.created_at,
   };
 }

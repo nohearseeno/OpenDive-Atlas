@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Fish } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageBand } from "@/components/shared/page-band";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SetupNotice } from "@/components/shared/setup-notice";
 import { SpeciesCard } from "@/components/species/species-card";
@@ -34,8 +34,9 @@ export default async function SpeciesCatalogPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <PageHeader title="Marine life" description="Learn about the species you can meet underwater and where they are seen." />
+    <>
+      <PageBand title="Marine life" description="Learn about the species you can meet underwater and where they are seen." />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
       {!configured ? (
         <SetupNotice />
       ) : (
@@ -57,6 +58,7 @@ export default async function SpeciesCatalogPage({
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

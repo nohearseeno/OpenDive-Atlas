@@ -25,13 +25,13 @@ export function MobileNav({ signedIn, isStaff }: { signedIn: boolean; isStaff: b
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+        <Button variant="ghost" size="icon" className="text-cream hover:bg-white/10 hover:text-cream md:hidden" aria-label="Open menu">
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="left">
         <SheetHeader>
-          <SheetTitle>OpenDive Atlas</SheetTitle>
+          <SheetTitle className="font-display text-lg">OpenDive Atlas</SheetTitle>
         </SheetHeader>
         <nav aria-label="Mobile" className="flex flex-col px-2">
           {links.map((link) => (

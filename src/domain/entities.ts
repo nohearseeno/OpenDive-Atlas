@@ -90,6 +90,7 @@ export interface Photo {
   sightingId: string | null;
   storagePath: string | null;
   uploadedBy: string | null;
+  isFeatured: boolean;
   createdAt: string;
 }
 

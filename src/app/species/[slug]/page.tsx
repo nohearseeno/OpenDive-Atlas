@@ -5,6 +5,8 @@ import { Camera, ChevronRight, MapPin, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Wave } from "@/components/shared/wave";
+import { ShoalBasePanel } from "@/components/shoalbase/shoalbase-link";
 import { PhotoImage } from "@/components/shared/photo-image";
 import { PhotoGallery } from "@/components/photos/photo-gallery";
 import { SightingList } from "@/components/sightings/sighting-list";
@@ -44,61 +46,67 @@ export default async function SpeciesPage({ params }: Props) {
   const hero = photos[0];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      <nav aria-label="Breadcrumb" className="text-muted-foreground mb-4 flex items-center gap-1 text-sm">
-        <Link href="/species" className="hover:text-foreground">
-          Marine life
-        </Link>
-        <ChevronRight className="size-3.5" aria-hidden />
-        <span className="text-foreground truncate">{species.commonName}</span>
-      </nav>
-
-      <div className="grid gap-8 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <PhotoImage src={hero?.url} alt={hero?.caption ?? species.commonName} className="aspect-[4/3] w-full rounded-xl" />
-          {hero?.attribution && (
-            <p className="text-muted-foreground mt-2 text-xs">
-              Photo: {hero.attribution}
-              {hero.license && ` · ${hero.license}`}
-              {hero.sourceUrl && (
-                <>
-                  {" · "}
-                  <a href={hero.sourceUrl} className="underline" target="_blank" rel="noreferrer">
-                    Source
-                  </a>
-                </>
-              )}
-            </p>
-          )}
-        </div>
-        <div className="space-y-5 lg:col-span-3">
-          <header className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{species.commonName}</h1>
-            <p className="text-muted-foreground text-lg italic">{species.scientificName}</p>
-            <div className="flex flex-wrap gap-1.5">
-              <Badge variant="secondary">{CATEGORY_LABELS[species.category]}</Badge>
-              <IucnBadge status={species.iucnStatus} long />
-            </div>
-          </header>
-          <p className="leading-relaxed whitespace-pre-line">{species.description}</p>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild>
-              <Link href={`/sightings/new?species=${species.slug}`}>
-                <Plus /> I saw one!
-              </Link>
-            </Button>
-            {isAdmin(user) && (
-              <Button asChild variant="ghost">
-                <Link href={`/admin/species/${species.id}`}>Edit</Link>
-              </Button>
+    <>
+    <div className="bg-wall text-cream">
+      <div className="mx-auto max-w-7xl px-4 pt-8 pb-8 sm:px-6">
+        <nav aria-label="Breadcrumb" className="text-fin mb-6 flex items-center gap-1 text-sm">
+          <Link href="/species" className="hover:underline">
+            Marine life
+          </Link>
+          <ChevronRight className="size-3.5" aria-hidden />
+          <span className="text-cream/80 truncate">{species.commonName}</span>
+        </nav>
+        <div className="grid gap-8 lg:grid-cols-5 lg:items-center">
+          <div className="lg:col-span-2">
+            <PhotoImage src={hero?.url} alt={hero?.caption ?? species.commonName} className="aspect-[4/3] w-full rounded-2xl" />
+            {hero?.attribution && (
+              <p className="text-cream/75 mt-2 text-xs">
+                Photo © {hero.attribution}
+                {hero.license && ` · ${hero.license}`}
+                {hero.sourceUrl && (
+                  <>
+                    {" · "}
+                    <a href={hero.sourceUrl} className="underline" target="_blank" rel="noreferrer">
+                      Source
+                    </a>
+                  </>
+                )}
+              </p>
             )}
+          </div>
+          <div className="space-y-5 lg:col-span-3">
+            <header className="space-y-2">
+              <h1 className="text-sponge text-4xl leading-[1.05] font-semibold sm:text-5xl">{species.commonName}</h1>
+              <p className="text-cream/85 text-lg italic">{species.scientificName}</p>
+              <div className="flex flex-wrap gap-1.5">
+                <Badge className="bg-cream/15 text-cream border-cream/30">{CATEGORY_LABELS[species.category]}</Badge>
+                <IucnBadge status={species.iucnStatus} long className="text-cream border-cream/40" />
+              </div>
+            </header>
+            <p className="text-cream/95 leading-relaxed whitespace-pre-line">{species.description}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="fin">
+                <Link href={`/sightings/new?species=${species.slug}`}>
+                  <Plus /> I saw one!
+                </Link>
+              </Button>
+              {isAdmin(user) && (
+                <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
+                  <Link href={`/admin/species/${species.id}`}>Edit</Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+      <Wave className="fill-background" />
+    </div>
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      {species.category === "fish" && <ShoalBasePanel speciesName={species.commonName} />}
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-3">
+      <div className="mt-10 grid gap-10 lg:grid-cols-3">
         <section aria-labelledby="where" className="space-y-4">
-          <h2 id="where" className="text-xl font-semibold">
+          <h2 id="where" className="text-wall text-2xl font-semibold">
             Where to see it
           </h2>
           {sites.length ? (
@@ -126,7 +134,7 @@ export default async function SpeciesPage({ params }: Props) {
 
         <div className="space-y-10 lg:col-span-2">
           <section aria-labelledby="gallery" className="space-y-4">
-            <h2 id="gallery" className="text-xl font-semibold">
+            <h2 id="gallery" className="text-wall text-2xl font-semibold">
               Photos
             </h2>
             {photos.length ? (
@@ -138,7 +146,7 @@ export default async function SpeciesPage({ params }: Props) {
             )}
           </section>
           <section aria-labelledby="sightings" className="space-y-4">
-            <h2 id="sightings" className="text-xl font-semibold">
+            <h2 id="sightings" className="text-wall text-2xl font-semibold">
               Recent sightings
             </h2>
             {sightings.length ? (
@@ -150,5 +158,6 @@ export default async function SpeciesPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -155,6 +155,19 @@ export const externalPhotoSchema = z
   })
   .refine((v) => v.siteId || v.speciesId, { message: "Attach the photo to a site or species", path: ["siteId"] });
 
+/** Admin-uploaded photo with explicit credit and licence (e.g. a featured hero image). */
+export const curatedPhotoSchema = z
+  .object({
+    storagePath: z.string().regex(/^site\/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|avif)$/, "Upload a photo first"),
+    siteId: z.preprocess(emptyToNull, uuidSchema.nullable()),
+    speciesId: z.preprocess(emptyToNull, uuidSchema.nullable()),
+    caption: optionalText(500),
+    attribution: z.preprocess(trimmed, z.string().min(2, "Credit the photographer").max(200)),
+    license: z.preprocess(trimmed, z.string().min(2, "State the licence").max(120)),
+    isFeatured: z.boolean(),
+  })
+  .refine((v) => v.siteId || v.speciesId, { message: "Attach the photo to a species or a dive site", path: ["speciesId"] });
+
 export const moderationSchema = z.object({
   kind: z.enum(["sighting", "review", "photo"]),
   id: uuidSchema,

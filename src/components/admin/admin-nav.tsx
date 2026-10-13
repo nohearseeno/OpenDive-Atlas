@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin", label: "Overview", adminOnly: false },
   { href: "/admin/sites", label: "Dive sites", adminOnly: true },
   { href: "/admin/species", label: "Species", adminOnly: true },
+  { href: "/admin/photos", label: "Photos", adminOnly: true },
   { href: "/admin/moderation", label: "Moderation", adminOnly: false },
 ];
 

@@ -28,7 +28,7 @@ export function UserMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-ring/50 rounded-full outline-none focus-visible:ring-[3px]" aria-label="Account menu">
-        <Avatar>
+        <Avatar className="ring-fin/60 ring-2">
           {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
           <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>

@@ -11,15 +11,15 @@ export async function SiteHeader() {
   const user = await getSessionUser();
   const profile = user?.profile ?? null;
   return (
-    <header className="bg-background/90 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6">
+    <header className="bg-reef-hole text-cream sticky top-0 z-40 border-b border-white/10">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
         <MobileNav signedIn={Boolean(user)} isStaff={isModerator(user)} />
         <Logo />
         <MainNav />
         <div className="ml-auto flex items-center gap-2">
           {user ? (
             <>
-              <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Button asChild size="sm" variant="fin" className="hidden sm:inline-flex">
                 <Link href="/sightings/new">
                   <Plus /> Log sighting
                 </Link>
@@ -33,10 +33,10 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="text-cream hover:bg-white/10 hover:text-cream">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" variant="fin">
                 <Link href="/signup">Sign up</Link>
               </Button>
             </>

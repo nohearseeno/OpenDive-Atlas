@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
+  curatedPhotoSchema,
   diveSiteSchema,
   externalPhotoSchema,
   moderationSchema,
@@ -18,7 +19,14 @@ import {
   upsertSiteSpecies,
 } from "@/infrastructure/repositories/dive-sites";
 import { createSpecies, deleteSpecies, updateSpecies } from "@/infrastructure/repositories/species";
-import { createExternalPhoto, deletePhoto, setPhotoStatus } from "@/infrastructure/repositories/photos";
+import {
+  createCuratedPhoto,
+  createExternalPhoto,
+  deletePhoto,
+  removeStorageObjects,
+  setPhotoFeatured,
+  setPhotoStatus,
+} from "@/infrastructure/repositories/photos";
 import { setSightingStatus } from "@/infrastructure/repositories/sightings";
 import { setReviewStatus } from "@/infrastructure/repositories/reviews";
 import { getSessionUser, isAdmin, isModerator } from "../session";
@@ -194,5 +202,44 @@ export async function deletePhotoAction(form: FormData): Promise<void> {
   const db = await createSupabaseServerClient();
   // RLS restricts deletes to the uploader or a moderator.
   await deletePhoto(db, str(form, "id"));
+  revalidatePath("/", "layout");
+}
+
+// ---------------------------------------------------------------------------
+// Curated photos (admin uploads to Storage under site/, with credit + licence)
+// ---------------------------------------------------------------------------
+export async function createCuratedPhotoAction(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await getSessionUser();
+  if (!isAdmin(user)) return FORBIDDEN;
+  const parsed = curatedPhotoSchema.safeParse({
+    storagePath: str(form, "storagePath"),
+    siteId: str(form, "siteId"),
+    speciesId: str(form, "speciesId"),
+    caption: str(form, "caption"),
+    attribution: str(form, "attribution"),
+    license: str(form, "license"),
+    isFeatured: form.get("isFeatured") === "on",
+  });
+  const db = await createSupabaseServerClient();
+  if (!parsed.success) {
+    const path = str(form, "storagePath");
+    if (path.startsWith("site/")) await removeStorageObjects(db, [path]);
+    return fromZodError(parsed.error);
+  }
+  try {
+    await createCuratedPhoto(db, parsed.data);
+  } catch (error) {
+    await removeStorageObjects(db, [parsed.data.storagePath]);
+    return fromUnknownError(error);
+  }
+  revalidatePath("/", "layout");
+  return { ok: true, message: parsed.data.isFeatured ? "Photo added and featured on the homepage." : "Photo added." };
+}
+
+export async function setPhotoFeaturedAction(form: FormData): Promise<void> {
+  const user = await getSessionUser();
+  if (!isAdmin(user)) return;
+  const db = await createSupabaseServerClient();
+  await setPhotoFeatured(db, str(form, "id"), str(form, "featured") === "true");
   revalidatePath("/", "layout");
 }

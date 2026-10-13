@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageBand } from "@/components/shared/page-band";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SetupNotice } from "@/components/shared/setup-notice";
 import { SiteCard } from "@/components/sites/site-card";
@@ -29,18 +29,19 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
   const mapHref = mapParams.size ? `/map?${mapParams}` : "/map";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <PageHeader
+    <>
+      <PageBand
         title="Dive sites"
         description="Every site lists conditions, experience level and the marine life divers commonly see there."
         actions={
-          <Button asChild variant="outline">
+          <Button asChild variant="cream">
             <Link href={mapHref}>
               <Map /> View on map
             </Link>
           </Button>
         }
       />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
       {!configured ? (
         <SetupNotice />
       ) : (
@@ -62,6 +63,7 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

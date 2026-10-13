@@ -18,7 +18,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | 📸 **Community sightings** | Log sightings with date, count, depth, notes and up to 6 photos uploaded to Supabase Storage |
 | ⭐ **Ratings & reviews** | Rate marine life, visibility, photography and difficulty; aggregated per site |
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
-| 🛡️ **Admin** | Create/edit dive sites & species, curate site species, add licensed reference photos, moderate sightings/reviews/photos |
+| 🛡️ **Admin** | Create/edit dive sites & species, curate site species, upload credited photos (incl. the homepage hero), moderate sightings/reviews/photos |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
 
 ## Tech stack
@@ -83,10 +83,17 @@ Roles: `user` (default), `moderator` (moderate community content), `admin` (mode
 
 ## Seed data
 
-Ten dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), Bonaire (Salt Pier, Hilma Hooker), Cozumel (Palancar Reef, Santa Rosa Wall), Hawaii (Molokini Crater) and Australia (Cod Hole, Osprey Reef), 32 species, 59 site–species links and reference photos from Wikimedia Commons.
+Ten dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), Bonaire (Salt Pier, Hilma Hooker), Cozumel (Palancar Reef, Santa Rosa Wall), Hawaii (Molokini Crater) and Australia (Cod Hole, Osprey Reef), 33 species, 64 site–species links and reference photos from Wikimedia Commons.
 
 Coordinates are approximate and for orientation only. **Always confirm entry points, conditions and permits with a local operator.**
 
+## Partner project: ShoalBase
+
+[ShoalBase](https://www.shoalbase.org/) (University of Glasgow) is an open database of fish social behaviour. OpenDive Atlas links to it from fish species pages, dive sites with fish, and after a diver logs a fish sighting, inviting them to record group size and behaviour there. ShoalBase has no public API and licenses its data CC BY-NC-ND 4.0, so no ShoalBase data is copied into OpenDive Atlas.
+
 ## Licence
 
-Code: [MIT](LICENSE). User-uploaded photos are contributed under CC BY 4.0. Reference photos retain their original Wikimedia Commons licences (see each photo's source link). Map data © OpenStreetMap contributors.
+- **Code:** [MIT](LICENSE).
+- **Photographs are not covered by the MIT licence.** Featured photography (such as the homepage photo of a long-spined squirrelfish by Michael Davis) is © its photographer, all rights reserved, and is stored in Supabase Storage rather than in this repository.
+- Photos uploaded by divers with sightings are contributed under CC BY 4.0. Reference photos keep their original Wikimedia Commons licences (see each photo's source link).
+- Map data © OpenStreetMap contributors.

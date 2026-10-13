@@ -6,7 +6,7 @@ function CheckboxChip({ className, children, ...props }: React.ComponentProps<"i
   return (
     <label
       className={cn(
-        "border-input hover:bg-accent has-[:checked]:bg-primary has-[:checked]:text-primary-foreground has-[:checked]:border-primary has-[:focus-visible]:ring-ring/50 inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors select-none has-[:focus-visible]:ring-[3px]",
+        "border-input hover:bg-accent has-[:checked]:bg-wall has-[:checked]:text-cream has-[:checked]:border-wall has-[:focus-visible]:ring-ring/50 inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors select-none has-[:focus-visible]:ring-[3px]",
         className,
       )}
     >

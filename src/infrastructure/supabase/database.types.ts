@@ -219,6 +219,7 @@ export type Database = {
           license: string | null;
           source_url: string | null;
           status: ModerationStatus;
+          is_featured: boolean;
           created_at: string;
         };
         Insert: {
@@ -234,6 +235,7 @@ export type Database = {
           license?: string | null;
           source_url?: string | null;
           status?: ModerationStatus;
+          is_featured?: boolean;
         };
         Update: {
           caption?: string | null;
@@ -241,6 +243,7 @@ export type Database = {
           license?: string | null;
           source_url?: string | null;
           status?: ModerationStatus;
+          is_featured?: boolean;
         };
         Relationships: [
           {

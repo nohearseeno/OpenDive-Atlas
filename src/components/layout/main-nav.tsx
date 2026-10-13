@@ -17,8 +17,8 @@ export function MainNav() {
             href={link.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "hover:bg-accent rounded-md px-3 py-1.5 text-sm transition-colors",
-              active ? "text-foreground font-medium" : "text-muted-foreground",
+              "rounded-full px-3 py-1.5 text-sm transition-colors hover:bg-white/10",
+              active ? "text-cream underline decoration-fin decoration-2 underline-offset-8" : "text-cream/75 hover:text-cream",
             )}
           >
             {link.label}

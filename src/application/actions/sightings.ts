@@ -38,6 +38,7 @@ export async function createSightingAction(_prev: ActionState, form: FormData): 
 
   const db = await createSupabaseServerClient();
   let siteSlug: string | null = null;
+  let speciesSlug: string | null = null;
   try {
     const sightingId = await createSighting(db, parsed.data);
     await createUploadedPhotos(
@@ -50,8 +51,12 @@ export async function createSightingAction(_prev: ActionState, form: FormData): 
         userId: user.id,
       })),
     );
-    const { data } = await db.from("dive_sites").select("slug").eq("id", parsed.data.siteId).maybeSingle();
-    siteSlug = data?.slug ?? null;
+    const [site, sp] = await Promise.all([
+      db.from("dive_sites").select("slug").eq("id", parsed.data.siteId).maybeSingle(),
+      db.from("species").select("slug").eq("id", parsed.data.speciesId).maybeSingle(),
+    ]);
+    siteSlug = site.data?.slug ?? null;
+    speciesSlug = sp.data?.slug ?? null;
   } catch (error) {
     await removeStorageObjects(db, ownPaths);
     return fromUnknownError(error);
@@ -61,7 +66,9 @@ export async function createSightingAction(_prev: ActionState, form: FormData): 
   revalidatePath("/profile");
   if (siteSlug) {
     revalidatePath(`/sites/${siteSlug}`);
-    redirect(`/sites/${siteSlug}?sighting=created#sightings`);
+    const qs = new URLSearchParams({ sighting: "created" });
+    if (speciesSlug) qs.set("species", speciesSlug);
+    redirect(`/sites/${siteSlug}?${qs}#sightings`);
   }
   redirect("/sightings?sighting=created");
 }

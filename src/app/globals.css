@@ -4,55 +4,49 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Ocean-inspired palette (shadcn/ui token conventions). */
+/*
+ * "Reef Wall" theme — palette sampled from a long-spined squirrelfish photo:
+ * the dark of the reef hole, the deep blue of the wall, the fish's bright fin
+ * blue, encrusting-sponge orange and Halimeda lime, on a warm cream page.
+ */
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.99 0.004 220);
-  --foreground: oklch(0.22 0.04 245);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 245);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 245);
-  --primary: oklch(0.48 0.12 230);
-  --primary-foreground: oklch(0.98 0.01 220);
-  --secondary: oklch(0.95 0.02 210);
-  --secondary-foreground: oklch(0.28 0.06 240);
-  --muted: oklch(0.96 0.01 220);
-  --muted-foreground: oklch(0.5 0.03 240);
-  --accent: oklch(0.93 0.04 190);
-  --accent-foreground: oklch(0.28 0.06 220);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.9 0.015 225);
-  --input: oklch(0.9 0.015 225);
-  --ring: oklch(0.55 0.12 230);
-  --coral: oklch(0.7 0.16 35);
-  --reef: oklch(0.7 0.13 175);
-}
+  --radius: 0.875rem;
 
-.dark {
-  --background: oklch(0.18 0.035 250);
-  --foreground: oklch(0.95 0.01 220);
-  --card: oklch(0.22 0.04 250);
-  --card-foreground: oklch(0.95 0.01 220);
-  --popover: oklch(0.22 0.04 250);
-  --popover-foreground: oklch(0.95 0.01 220);
-  --primary: oklch(0.72 0.12 220);
-  --primary-foreground: oklch(0.18 0.04 250);
-  --secondary: oklch(0.28 0.04 245);
-  --secondary-foreground: oklch(0.95 0.01 220);
-  --muted: oklch(0.27 0.035 248);
-  --muted-foreground: oklch(0.72 0.03 230);
-  --accent: oklch(0.32 0.05 210);
-  --accent-foreground: oklch(0.95 0.01 220);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(0.32 0.04 245);
-  --input: oklch(0.32 0.04 245);
-  --ring: oklch(0.72 0.12 220);
+  --reef-hole: #0d1129;
+  --wall: #13497f;
+  --wall-deep: #0f3a66;
+  --fin: #5cc3f0;
+  --sponge: #f79a6b;
+  --sponge-ink: #b2451b;
+  --halimeda: #c6db57;
+  --cream: #fff6ea;
+
+  --background: #fbf7f0;
+  --foreground: #0d1129;
+  --card: #ffffff;
+  --card-foreground: #0d1129;
+  --popover: #ffffff;
+  --popover-foreground: #0d1129;
+  --primary: #13497f;
+  --primary-foreground: #fff6ea;
+  --secondary: #e9f2f9;
+  --secondary-foreground: #13497f;
+  --muted: #f2ece2;
+  --muted-foreground: #56607a;
+  --accent: #e6f3fb;
+  --accent-foreground: #0d1129;
+  --destructive: #c4283f;
+  --border: #e5dccd;
+  --input: #d6ccbb;
+  --ring: #5cc3f0;
+  --reef: #c6db57;
+  --coral: #f79a6b;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope Variable", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -77,6 +71,14 @@
   --color-ring: var(--ring);
   --color-coral: var(--coral);
   --color-reef: var(--reef);
+  --color-reef-hole: var(--reef-hole);
+  --color-wall: var(--wall);
+  --color-wall-deep: var(--wall-deep);
+  --color-fin: var(--fin);
+  --color-sponge: var(--sponge);
+  --color-sponge-ink: var(--sponge-ink);
+  --color-halimeda: var(--halimeda);
+  --color-cream: var(--cream);
 }
 
 @layer base {
@@ -85,6 +87,11 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
   }
 }
 

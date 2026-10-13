@@ -174,7 +174,9 @@ insert into public.species (slug, common_name, scientific_name, category, iucn_s
 ('elkhorn-coral', 'Elkhorn Coral', 'Acropora palmata', 'coral', 'CR',
  'A branching reef-building coral with broad, flattened branches resembling elk antlers. Once dominant in shallow Caribbean reefs, it has declined dramatically and is critically endangered.'),
 ('grooved-brain-coral', 'Grooved Brain Coral', 'Diploria labyrinthiformis', 'coral', 'CR',
- 'A massive dome-shaped coral whose surface of meandering ridges and valleys resembles a brain. Common on Caribbean reefs but threatened by stony coral tissue loss disease.')
+ 'A massive dome-shaped coral whose surface of meandering ridges and valleys resembles a brain. Common on Caribbean reefs but threatened by stony coral tissue loss disease.'),
+('longspine-squirrelfish', 'Long-spined Squirrelfish', 'Holocentrus rufus', 'fish', 'LC',
+ 'A red-and-silver striped reef fish with oversized eyes and a tall dorsal fin whose spines carry white tips. Squirrelfish are nocturnal: by day they hover in holes and under ledges on the reef wall, and at night they come out to hunt crabs and shrimps. They make clicking and grunting sounds when disturbed.')
 on conflict (slug) do update set
   common_name = excluded.common_name, scientific_name = excluded.scientific_name,
   category = excluded.category, iucn_status = excluded.iucn_status,
@@ -254,7 +256,13 @@ from (values
   ('osprey-reef', 'dogtooth-tuna',       'common',     null),
   ('osprey-reef', 'reef-manta-ray',      'occasional', null),
   ('osprey-reef', 'humphead-wrasse',     'occasional', null),
-  ('osprey-reef', 'potato-cod',          'occasional', null)
+  ('osprey-reef', 'potato-cod',          'occasional', null),
+  -- Long-spined squirrelfish (Caribbean)
+  ('salt-pier',       'longspine-squirrelfish', 'common', 'Hovering in the shade between pilings.'),
+  ('hilma-hooker',    'longspine-squirrelfish', 'common', 'In the wreck''s openings and overhangs.'),
+  ('molasses-reef',   'longspine-squirrelfish', 'common', 'Under ledges along the spurs.'),
+  ('palancar-reef',   'longspine-squirrelfish', 'common', 'In holes and swim-throughs.'),
+  ('santa-rosa-wall', 'longspine-squirrelfish', 'common', 'Look into the wall''s holes and overhangs.')
 ) as v(site_slug, species_slug, frequency, notes)
 join public.dive_sites ds on ds.slug = v.site_slug
 join public.species sp on sp.slug = v.species_slug
