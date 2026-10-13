@@ -12,7 +12,7 @@ import { tripActions } from "./trip-store";
 export function TripOwnerActions({
   trip,
 }: {
-  trip: { id: string; title: string; sites: TripSite[]; settings: TripSettings; plan: TripPlan | null; isShared: boolean };
+  trip: { id: string; userId: string; title: string; sites: TripSite[]; settings: TripSettings; plan: TripPlan | null; isShared: boolean };
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -37,6 +37,7 @@ export function TripOwnerActions({
             settings: { ...trip.settings, title: trip.title },
             plan: trip.plan,
             savedId: trip.id,
+            ownerId: trip.userId,
           });
           router.push("/trip");
         }}
@@ -72,5 +73,32 @@ export function TripOwnerActions({
         <Trash2 /> Delete
       </Button>
     </div>
+  );
+}
+
+/** For people viewing someone else's shared trip: start their own copy in the planner. */
+export function CopyTripButton({
+  trip,
+}: {
+  trip: { title: string; sites: TripSite[]; settings: TripSettings; plan: TripPlan | null };
+}) {
+  const router = useRouter();
+  return (
+    <Button
+      variant="fin"
+      onClick={() => {
+        if (!tripActions.isEmpty() && !confirm("Replace the trip in your planner with a copy of this one?")) return;
+        tripActions.load({
+          sites: trip.sites,
+          settings: { ...trip.settings, title: `${trip.title} (copy)` },
+          plan: trip.plan,
+          savedId: null,
+          ownerId: null,
+        });
+        router.push("/trip");
+      }}
+    >
+      <Copy /> Copy to my planner
+    </Button>
   );
 }
