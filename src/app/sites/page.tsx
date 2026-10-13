@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { reviewProcessCopy } from "@/infrastructure/ai/client";
 import Link from "next/link";
-import { CheckCircle2, Map, Plus } from "lucide-react";
+import { CheckCircle2, Map, Plus, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination } from "@/components/shared/pagination";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,11 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
                 <Map /> View on map
               </Link>
             </Button>
+            <Button asChild variant="sponge">
+              <Link href="/recommend">
+                <Sparkles /> Find my dive
+              </Link>
+            </Button>
             <Button asChild variant="fin">
               <Link href="/sites/suggest">
                 <Plus /> Suggest a dive site
@@ -64,7 +70,7 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
           {params.suggestion === "sent" && (
             <Alert variant="success">
               <CheckCircle2 />
-              <AlertDescription>Thanks! Your suggested site was sent for review.</AlertDescription>
+              <AlertDescription>Thanks! Your suggested site was sent. {reviewProcessCopy()}</AlertDescription>
             </Alert>
           )}
           <p className="text-muted-foreground text-sm" aria-live="polite">
@@ -82,7 +88,16 @@ export default async function SitesPage({ searchParams }: { searchParams: Promis
             <Pagination page={page} pageCount={pageCount} basePath="/sites" params={mapParams} />
           ) : (
             <EmptyState icon={<Map />} title="No dive sites match your filters">
-              Try removing a filter or searching for a country instead.
+              Try removing a filter or searching for a country instead
+              {filters.q && filters.q.trim().split(/\s+/).length >= 3 ? (
+                <>
+                  , or{" "}
+                  <Link href={`/recommend?q=${encodeURIComponent(filters.q)}`} className="text-wall underline underline-offset-4">
+                    get recommendations for &ldquo;{filters.q}&rdquo;
+                  </Link>
+                </>
+              ) : null}
+              .
             </EmptyState>
           )}
         </div>

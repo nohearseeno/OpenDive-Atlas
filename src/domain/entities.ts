@@ -43,10 +43,14 @@ export interface DiveSite {
   description: string;
   accessNotes: string | null;
   isPublished: boolean;
-  /** False for starter entries whose details haven't been confirmed by a diver. */
+  /** True once a human moderator has confirmed the details. */
   isVerified: boolean;
+  /** Unverified (e.g. starter entries), digitally reviewed by the AI moderator, or human reviewed. */
+  reviewLevel: ReviewLevel;
   updatedAt: string;
 }
+
+export type ReviewLevel = "unverified" | "digital" | "human";
 
 export interface DiveSiteSummary extends DiveSite {
   ratings: RatingSummary;
@@ -68,6 +72,7 @@ export interface DiveSiteMarker {
   maxDepthM: number | null;
   ratingOverall: number | null;
   isVerified: boolean;
+  reviewLevel: ReviewLevel;
 }
 
 export interface Species {
@@ -202,6 +207,18 @@ export interface SiteFieldValues {
   accessNotes?: string | null;
 }
 
+export type AiReviewStatus = "approved" | "needs_human" | "rejected" | "failed";
+
+/** The AI moderator's verdict on a suggestion. */
+export interface AiReview {
+  status: AiReviewStatus;
+  confidence: number | null;
+  summary: string | null;
+  checks: { check: string; result: "pass" | "fail" | "unclear"; note: string }[];
+  sources: string[];
+  reviewedAt: string | null;
+}
+
 export interface SiteSuggestion {
   id: string;
   kind: "edit" | "new";
@@ -213,6 +230,7 @@ export interface SiteSuggestion {
   reviewNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
+  ai: AiReview | null;
 }
 
 /** Proposed species values; for edits, only the fields that changed. */
@@ -235,6 +253,7 @@ export interface SpeciesSuggestion {
   reviewNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
+  ai: AiReview | null;
 }
 
 export type InviteStatus = "pending" | "accepted" | "declined";

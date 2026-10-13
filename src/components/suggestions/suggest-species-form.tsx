@@ -14,7 +14,7 @@ import type { Species } from "@/domain/entities";
 
 /**
  * Lets a signed-in diver propose corrections to a species (pre-filled with the
- * current details) or suggest a missing one. A moderator reviews it first.
+ * current details) or suggest a missing one. It's reviewed by the AI moderator (if enabled) and a human moderator.
  */
 export function SuggestSpeciesForm({ species }: { species?: Species }) {
   const [state, formAction] = useActionState(species ? suggestSpeciesEditAction : suggestNewSpeciesAction, initialActionState);

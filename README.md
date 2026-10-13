@@ -21,6 +21,8 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | ⭐ **Ratings & reviews** | Rate marine life, visibility, photography and difficulty; aggregated per site |
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
 | ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
+| 🤖 **AI moderator** | Claude checks every site and species suggestion (with web search). Confident approvals go live as *Digitally reviewed*; a human moderator then marks them *Human reviewed* |
+| ✨ **Find my dive** | Describe the dive you want in plain words and get site recommendations from the atlas |
 | 🐟 **Top Contributors** | Divers with 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
 | 🛡️ **Moderation & admin** | Moderators review site and species suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
@@ -63,6 +65,33 @@ update public.profiles set role = 'admin' where username = 'your_username';
 ```
 
 See [User roles](#user-roles) for what each role can do and how to promote a moderator.
+
+## Two-tier review and the AI moderator
+
+Every dive site shows how far its details have been checked:
+
+| Label | Meaning |
+| --- | --- |
+| **Unverified** | Starter entry, or details no one has checked yet |
+| **Digitally reviewed** | Approved by the AI moderator, not yet confirmed by a person |
+| **Human reviewed** | Confirmed by a moderator |
+
+When a diver suggests a new site, an edit, a new species or a species correction, the **AI moderator** (Claude, with web search) reviews it in the background within a few minutes:
+
+- **Approve:** it confirmed the details (for sites, from independent sources such as dive operators). The change goes live straight away. A new or edited site is marked *Digitally reviewed*.
+- **Needs a human:** plausible but unconfirmed, or anything it is unsure about. The suggestion stays in the queue with the AI's notes, checks and sources.
+- **Reject:** clearly spam, abusive, nonsensical or a duplicate. The diver sees the reason on their profile.
+
+The AI never applies edits to a site that is already *Human reviewed*; those always wait for a person.
+
+Moderators work in **Admin → Suggestions**:
+
+- **Dive sites** and **Species** tabs list suggestions. Each shows the AI verdict, with a button to run or re-run the AI review.
+- **Awaiting human check** lists digitally reviewed sites. *Mark human reviewed* completes the second tier; *Unpublish* takes a site down.
+
+Divers can also use **Find my dive** (`/recommend`): describe what you're after ("warm water, sharks, beginner, December") and Claude suggests matching sites from the atlas, limited to 10 requests an hour per visitor.
+
+Both features need `ANTHROPIC_API_KEY` (and the AI moderator needs `AI_REVIEW_TOKEN`); see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
 
 ## User roles
 

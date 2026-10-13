@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { siteSuggestionSchema, suggestionNoteSchema, suggestionReviewSchema, uuidSchema } from "@/domain/schemas";
@@ -14,7 +15,8 @@ import {
   markSuggestionReviewed,
   siteFieldValues,
 } from "@/infrastructure/repositories/site-suggestions";
-import { sendPendingInviteEmails } from "@/infrastructure/repositories/contributor-invites";
+import { sendPendingInviteEmails, sendPendingInviteEmailsAsAiModerator } from "@/infrastructure/repositories/contributor-invites";
+import { runAiReview } from "@/infrastructure/ai/moderator";
 import { slugify } from "@/lib/utils";
 import { getSessionUser, isModerator } from "../session";
 import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
@@ -60,7 +62,13 @@ export async function suggestSiteEditAction(_prev: ActionState, form: FormData):
     if (!Object.keys(changes).length && !note && !confirmsAsIs) {
       return { ok: false, message: "Change at least one detail, add a note, or confirm the details are correct." };
     }
-    await createSiteSuggestion(db, { siteId: site.id, payload: changes, note: confirmsAsIs && !note ? "Confirmed as accurate." : note });
+    const id = await createSiteSuggestion(db, {
+      siteId: site.id,
+      payload: changes,
+      note: confirmsAsIs && !note ? "Confirmed as accurate." : note,
+    });
+    // Field changes get a first-tier review from the AI moderator after the response is sent.
+    if (Object.keys(changes).length) after(() => runAiReview("site", id));
   } catch (error) {
     return fromUnknownError(error);
   }
@@ -77,7 +85,11 @@ export async function suggestNewSiteAction(_prev: ActionState, form: FormData): 
   const note = suggestionNoteSchema.parse(str(form, "note"));
   try {
     const db = await createSupabaseServerClient();
-    await createSiteSuggestion(db, { siteId: null, payload: parsed.data as SiteFieldValues, note });
+    const id = await createSiteSuggestion(db, { siteId: null, payload: parsed.data as SiteFieldValues, note });
+    after(async () => {
+      // An AI approval can earn the author a Top Contributor invitation; email it if so.
+      if ((await runAiReview("site", id)) === "approved") await sendPendingInviteEmailsAsAiModerator();
+    });
   } catch (error) {
     return fromUnknownError(error);
   }
@@ -184,4 +196,42 @@ export async function reviewSuggestionAction(_prev: ActionState, form: FormData)
   }
   revalidatePath("/", "layout");
   return { ok: true, message: decision === "approve" ? "Approved and applied." : "Suggestion rejected." };
+}
+
+// ---------------------------------------------------------------------------
+// AI moderator (moderators/admins)
+// ---------------------------------------------------------------------------
+
+/** Run (or re-run) the AI review on a pending suggestion. */
+export async function runAiReviewAction(form: FormData): Promise<void> {
+  const user = await getSessionUser();
+  if (!isModerator(user)) return;
+  const kind = str(form, "kind") === "species" ? "species" : "site";
+  const id = uuidSchema.safeParse(str(form, "id"));
+  if (!id.success) return;
+  const result = await runAiReview(kind, id.data);
+  if (result === "approved" && kind === "site") await sendPendingInviteEmailsAsAiModerator();
+  revalidatePath("/", "layout");
+}
+
+/** Second tier: a moderator confirms a digitally reviewed site. */
+export async function confirmHumanReviewAction(form: FormData): Promise<void> {
+  const user = await getSessionUser();
+  if (!isModerator(user)) return;
+  const id = uuidSchema.safeParse(str(form, "siteId"));
+  if (!id.success) return;
+  const db = await createSupabaseServerClient();
+  await db.from("dive_sites").update({ is_verified: true, updated_by: user!.id }).eq("id", id.data);
+  revalidatePath("/", "layout");
+}
+
+/** Take a digitally reviewed site off the map until it's fixed. */
+export async function unpublishSiteAction(form: FormData): Promise<void> {
+  const user = await getSessionUser();
+  if (!isModerator(user)) return;
+  const id = uuidSchema.safeParse(str(form, "siteId"));
+  if (!id.success) return;
+  const db = await createSupabaseServerClient();
+  await db.from("dive_sites").update({ is_published: false, updated_by: user!.id }).eq("id", id.data);
+  revalidatePath("/", "layout");
 }

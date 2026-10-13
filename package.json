@@ -20,6 +20,7 @@
     "seed:verify-photos": "node scripts/verify-seed-photos.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource/poppins": "^5.3.0",
     "@supabase/ssr": "^0.12.7",

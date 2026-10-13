@@ -5,6 +5,7 @@ import { isAdmin, requireModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { countPendingSuggestions } from "@/infrastructure/repositories/site-suggestions";
 import { countPendingSpeciesSuggestions } from "@/infrastructure/repositories/species-suggestions";
+import { countDigitallyReviewedSites } from "@/infrastructure/repositories/dive-sites";
 
 type CountedTable = "dive_sites" | "species" | "sightings" | "reviews" | "photos";
 
@@ -20,7 +21,7 @@ async function count(table: CountedTable, status?: "rejected" | "pending") {
 
 export default async function AdminHome() {
   const user = await requireModerator();
-  const [sites, species, sightings, reviews, photos, pending, hidden, suggestions, speciesSuggestions] = await Promise.all([
+  const [sites, species, sightings, reviews, photos, pending, hidden, suggestions, speciesSuggestions, digitalSites] = await Promise.all([
     count("dive_sites"),
     count("species"),
     count("sightings"),
@@ -34,6 +35,7 @@ export default async function AdminHome() {
     ),
     createSupabaseServerClient().then(countPendingSuggestions),
     createSupabaseServerClient().then(countPendingSpeciesSuggestions),
+    createSupabaseServerClient().then(countDigitallyReviewedSites),
   ]);
   const cards = [
     { label: "Dive sites", value: sites, href: "/admin/sites" },
@@ -45,6 +47,7 @@ export default async function AdminHome() {
     { label: "Hidden content", value: hidden, href: "/admin/moderation?status=rejected" },
     { label: "Site suggestions waiting", value: suggestions, href: "/admin/suggestions" },
     { label: "Species suggestions waiting", value: speciesSuggestions, href: "/admin/suggestions?type=species" },
+    { label: "Digitally reviewed, awaiting human check", value: digitalSites, href: "/admin/suggestions?type=digital" },
   ];
   return (
     <>

@@ -10,6 +10,17 @@ Copy `.env.example` to `.env.local` for local development. On Vercel, set these 
 | `NEXT_PUBLIC_MAP_TILE_URL` | optional | yes | Leaflet tile URL template. Defaults to `https://tile.openstreetmap.org/{z}/{x}/{y}.png`. For production traffic use a provider that permits your volume (e.g. MapTiler, Stadia, Thunderforest) per the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/). |
 | `NEXT_PUBLIC_MAP_TILE_ATTRIBUTION` | optional | yes | HTML attribution for your tile provider. Defaults to OpenStreetMap contributors. |
 
+### AI features
+
+Set these in Vercel (Project → Settings → Environment Variables). They're server-only; never prefix them with `NEXT_PUBLIC_`.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | for AI features | Claude API key from [console.anthropic.com](https://console.anthropic.com). Turns on **Find my dive** recommendations and, with the token below, the AI moderator. |
+| `AI_REVIEW_TOKEN` | for the AI moderator | A random string (32+ characters) that must match `public.maintenance_tokens` for job `ai-review`. It lets the AI moderator record verdicts through `apply_ai_review()`; it grants nothing else. Set it in the database with `insert into public.maintenance_tokens (job, token) values ('ai-review', '<token>') on conflict (job) do update set token = excluded.token;` |
+
+Both features use `claude-opus-5-5`. A review with web search typically costs a few cents; a recommendation costs less than a cent once the site catalogue is cached. Recommendations are limited to 10 per visitor per hour and 1,000 per day in total.
+
 ### Edge Function secrets
 
 Set these in Supabase → Edge Functions → Secrets (or `npx supabase secrets set NAME=value`). They are used only by the `send-contributor-invites` function, never by the Next.js app.

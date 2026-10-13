@@ -18,6 +18,7 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000014_top_contributor_at_50.sql` | Invitation is sent on the 50th approved new site instead of the 51st |
 | `migrations/20261013000015_starter_species.sql` | 277 starter species across all categories (no site links) |
 | `migrations/20261013000016_species_suggestions.sql` | `species_suggestions` table and `review_species_suggestion()` |
+| `migrations/20261013000018_ai_review_and_recommendations.sql` | `dive_sites.ai_reviewed_at`, AI verdict columns on suggestions, `ai_review_context()` / `apply_ai_review()`, recommendation rate limit |
 | `migrations/20261013000017_maintenance_jobs.sql` | `pg_net`, `maintenance_tokens` for admin-run Edge Functions, service-role access to the role helpers |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
@@ -176,6 +177,20 @@ All tables have RLS enabled. Helper functions `private.is_admin()` and `private.
 ### Species suggestions
 
 Divers suggest a missing species (`species_id` null) or corrections to an existing one; edits store only the changed fields. Moderators review them with `review_species_suggestion(suggestion_id, approve, reviewer_note)`, a `SECURITY DEFINER` function that checks `private.is_moderator()`, applies the change (or inserts the species with a unique slug) and records the review in one transaction. Moderators can therefore approve species changes without having direct write access to `species`, which stays admin-only. A duplicate scientific name aborts the approval. Species suggestions don't count toward Top Contributor invitations.
+
+### AI moderator
+
+Review level is derived from two columns: `is_verified` (human reviewed) and `ai_reviewed_at` (digitally reviewed). Suggestions carry the AI's verdict in `ai_status` (`approved` / `needs_human` / `rejected` / `failed`), `ai_confidence`, `ai_summary`, `ai_checks` and `ai_sources`.
+
+The AI moderator runs in the Next.js app with no database role of its own. It calls two `SECURITY DEFINER` functions that require the `ai-review` token from `maintenance_tokens`:
+
+- `ai_review_context(token, kind, id)` returns the suggestion and the current site or species.
+- `apply_ai_review(token, kind, id, decision, confidence, summary, checks, sources)` records the verdict.
+  - On `approved` it applies the change: new sites are inserted published with `ai_reviewed_at` set, and edits are applied only to sites that aren't human-reviewed (otherwise the verdict is downgraded to `needs_human`).
+  - On `rejected` it rejects the suggestion with the AI's reason.
+  - It skips suggestions a human already reviewed.
+
+`take_recommendation_quota(ip_hash)` enforces the Find my dive limits (10 per visitor per hour, 1,000 per day) using `recommendation_requests`, which only that function can read.
 
 ### Top Contributor invitations
 

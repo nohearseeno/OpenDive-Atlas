@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { reviewProcessCopy } from "@/infrastructure/ai/client";
 import Link from "next/link";
 import { CheckCircle2, Fish, Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -71,7 +72,7 @@ export default async function SpeciesCatalogPage({
           {params.suggestion === "sent" && (
             <Alert variant="success">
               <CheckCircle2 />
-              <AlertDescription>Thanks! Your suggested species was sent for review.</AlertDescription>
+              <AlertDescription>Thanks! Your suggested species was sent. {reviewProcessCopy()}</AlertDescription>
             </Alert>
           )}
           <p className="text-muted-foreground text-sm" aria-live="polite">

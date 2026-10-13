@@ -6,6 +6,9 @@
 // been emailed yet. Each invitation is claimed atomically before sending, so
 // concurrent calls never send the same email twice.
 //
+// Callers: a signed-in moderator/admin (user JWT), or the AI moderator using
+// the 'ai-review' token from public.maintenance_tokens.
+//
 // Secrets (Supabase → Edge Functions → Secrets):
 //   RESEND_API_KEY      required to send; without it the function does nothing
 //   INVITE_FROM_EMAIL   optional, default "OpenDive Atlas <invites@opendiveatlas.org>"
@@ -48,13 +51,22 @@ Deno.serve(async (req) => {
     auth: { persistSession: false },
   });
 
-  // Only signed-in moderators/admins may trigger a send.
+  // Only signed-in moderators/admins, or the AI moderator (with its job
+  // token from public.maintenance_tokens), may trigger a send.
   const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return json({ error: "Unauthorized" }, 401);
-  const { data: caller } = await admin.auth.getUser(token);
-  if (!caller.user) return json({ error: "Unauthorized" }, 401);
-  const { data: callerProfile } = await admin.from("profiles").select("role").eq("id", caller.user.id).maybeSingle();
-  if (!callerProfile || callerProfile.role === "user") return json({ error: "Forbidden" }, 403);
+  const { data: aiJob } = await admin
+    .from("maintenance_tokens")
+    .select("job")
+    .eq("job", "ai-review")
+    .eq("token", token)
+    .maybeSingle();
+  if (!aiJob) {
+    const { data: caller } = await admin.auth.getUser(token);
+    if (!caller.user) return json({ error: "Unauthorized" }, 401);
+    const { data: callerProfile } = await admin.from("profiles").select("role").eq("id", caller.user.id).maybeSingle();
+    if (!callerProfile || callerProfile.role === "user") return json({ error: "Forbidden" }, 403);
+  }
 
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) return json({ sent: 0, skipped: "RESEND_API_KEY is not set" });
