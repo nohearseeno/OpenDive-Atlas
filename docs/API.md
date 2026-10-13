@@ -99,6 +99,10 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `suggestSiteEditAction` | signed in | siteId, site fields, note, confirm | Stores only the changed fields as a pending suggestion |
 | `suggestNewSiteAction` | signed in | site fields, note | Stores a pending new-site suggestion |
 | `withdrawSuggestionAction` | author (pending) / admin | id | Deletes the suggestion |
+| `suggestSpeciesEditAction` | signed in | speciesId, species fields, note | Stores only the changed fields as a pending species suggestion |
+| `suggestNewSpeciesAction` | signed in | commonName, scientificName, category, description, iucnStatus, note | Stores a pending new-species suggestion (rejects scientific names already listed) |
+| `withdrawSpeciesSuggestionAction` | author (pending) / admin | id | Deletes the species suggestion |
+| `reviewSpeciesSuggestionAction` | moderator | id, decision (`approve`/`reject`), reviewNote | Calls `review_species_suggestion()`, which applies an approved edit or creates the species |
 | `reviewSuggestionAction` | moderator | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
 | `respondToInviteAction` | invited diver | id, decision (`accept`/`decline`) | Accepts or declines a Top Contributor invitation; accepting grants the badge and moderator role |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |

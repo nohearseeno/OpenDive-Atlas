@@ -14,7 +14,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | --- | --- |
 | 🗺️ **Global dive map** | Interactive Leaflet + OpenStreetMap map, search, filters (Reef, Wreck, Shore, Boat, Freshwater, Beginner, Advanced), colour-coded by experience level |
 | 📍 **Dive site directory** | Name, country, region, coordinates, dive type, experience level, visibility, temperature, max depth, typical current, description, access notes, photo gallery |
-| 🐠 **Marine life catalog** | Species profiles with common/scientific name, category, IUCN status, description, photos and where to see them |
+| 🐠 **Marine life catalog** | 300+ species profiles with common/scientific name, category, IUCN status, description, photos and where to see them; divers can suggest missing species and corrections |
 | 🔗 **Site ↔ species** | Curated "commonly sighted" list (with frequency) merged with live community sighting counts |
 | 👤 **Authentication** | Email/password sign-up & login (Supabase Auth), profile management |
 | 📸 **Community sightings** | Log sightings with date, count, depth, notes and up to 6 photos uploaded to Supabase Storage |
@@ -22,7 +22,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
 | ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
 | 🐟 **Top Contributors** | Divers with 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
-| 🛡️ **Moderation & admin** | Moderators review site suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
+| 🛡️ **Moderation & admin** | Moderators review site and species suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
 
 ## Tech stack
@@ -72,13 +72,13 @@ Every account has one role, stored in `profiles.role`. Each role includes everyt
 | --- | :---: | :---: | :---: |
 | Browse sites, species, sightings and reviews | ✅ | ✅ | ✅ |
 | Log sightings, upload photos, rate sites (own content) | ✅ | ✅ | ✅ |
-| Suggest edits to a site or suggest a new site | ✅ | ✅ | ✅ |
+| Suggest edits to a site or species, or suggest a new one | ✅ | ✅ | ✅ |
 | Hide/restore or delete anyone's sightings, reviews and photos | | ✅ | ✅ |
-| Review site suggestions (approve and apply, or reject) | | ✅ | ✅ |
+| Review site and species suggestions (approve and apply, or reject) | | ✅ | ✅ |
 | Add new dive sites and edit site details, publish, mark verified | | ✅ | ✅ |
 | View unpublished (draft) sites | | ✅ | ✅ |
 | Delete dive sites | | | ✅ |
-| Create, edit and delete species | | | ✅ |
+| Create, edit and delete species directly | | | ✅ |
 | Curate a site's "commonly sighted" species | | | ✅ |
 | Add reference photos, upload curated photos, choose the homepage hero | | | ✅ |
 | Change users' roles | | | ✅ |
@@ -132,6 +132,8 @@ update public.profiles set is_top_contributor = false, role = 'user' where usern
 ## Seed data
 
 **Starter dataset (migration `…0010`):** 211 well-known dive sites across the Caribbean & Florida, Indo-Pacific, Red Sea & Mediterranean and the Americas/Africa, published as **unverified** starter entries (approximate coordinates and typical conditions) for the community to confirm.
+
+**Starter species (migration `…0015`):** 277 commonly encountered fish, sharks and rays, reptiles, mammals, cephalopods, crustaceans, molluscs, corals and invertebrates. They have descriptions and IUCN statuses but no photos or site links yet; sites pick up species from community sightings, and divers can suggest corrections.
 
 **Reference seed (`seed.sql`):** ten fully described dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), Bonaire (Salt Pier, Hilma Hooker), Cozumel (Palancar Reef, Santa Rosa Wall), Hawaii (Molokini Crater) and Australia (Cod Hole, Osprey Reef), 33 species, 64 site–species links and reference photos from Wikimedia Commons.
 

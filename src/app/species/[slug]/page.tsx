@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Camera, ChevronRight, MapPin, Plus } from "lucide-react";
+import { Camera, CheckCircle2, ChevronRight, MapPin, PencilLine, Plus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -17,7 +18,7 @@ import { listSpeciesPhotos } from "@/infrastructure/repositories/photos";
 import { listSightings } from "@/infrastructure/repositories/sightings";
 import { CATEGORY_LABELS, FREQUENCY_LABELS } from "@/domain/constants";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<{ suggestion?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -30,8 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SpeciesPage({ params }: Props) {
+export default async function SpeciesPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const suggestionSent = (await searchParams)?.suggestion === "sent";
   const db = await createSupabaseServerClient();
   const species = await getSpeciesBySlug(db, slug);
   if (!species) notFound();
@@ -89,6 +91,11 @@ export default async function SpeciesPage({ params }: Props) {
                   <Plus /> I saw one!
                 </Link>
               </Button>
+              <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
+                <Link href={`/species/${species.slug}/suggest`}>
+                  <PencilLine /> Suggest an edit
+                </Link>
+              </Button>
               {isAdmin(user) && (
                 <Button asChild variant="ghost" className="text-cream hover:bg-white/10 hover:text-cream">
                   <Link href={`/admin/species/${species.id}`}>Edit</Link>
@@ -101,6 +108,12 @@ export default async function SpeciesPage({ params }: Props) {
       <SeabedEdge className="fill-background" />
     </div>
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      {suggestionSent && (
+        <Alert variant="success">
+          <CheckCircle2 />
+          <AlertDescription>Thanks! Your suggestion was sent. A moderator will review it before the page changes.</AlertDescription>
+        </Alert>
+      )}
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
         <section aria-labelledby="where" className="space-y-4">
           <h2 id="where" className="text-wall text-2xl font-semibold">

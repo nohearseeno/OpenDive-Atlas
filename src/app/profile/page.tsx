@@ -11,6 +11,8 @@ import { listSightings } from "@/infrastructure/repositories/sightings";
 import { listReviews } from "@/infrastructure/repositories/reviews";
 import { listSiteSuggestions } from "@/infrastructure/repositories/site-suggestions";
 import { withdrawSuggestionAction } from "@/application/actions/site-suggestions";
+import { withdrawSpeciesSuggestionAction } from "@/application/actions/species-suggestions";
+import { listSpeciesSuggestions } from "@/infrastructure/repositories/species-suggestions";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -26,12 +28,13 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
   const user = await requireUser("/profile");
   const { contributor } = await searchParams;
   const db = await createSupabaseServerClient();
-  const [sightings, reviews, suggestions, invite, approvedSites] = await Promise.all([
+  const [sightings, reviews, suggestions, invite, approvedSites, speciesSuggestions] = await Promise.all([
     listSightings(db, { userId: user.id, status: "all", limit: 50 }),
     listReviews(db, { userId: user.id, status: "all", limit: 50 }),
     listSiteSuggestions(db, { userId: user.id, status: "all", limit: 50 }),
     getInviteForUser(db, user.id),
     countApprovedNewSites(db, user.id),
+    listSpeciesSuggestions(db, { userId: user.id, status: "all", limit: 50 }),
   ]);
   const isTopContributor = user.profile?.isTopContributor ?? false;
   const needed = TOP_CONTRIBUTOR_THRESHOLD;
@@ -154,6 +157,44 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
                     <StatusBadge status={s.status} />
                     {s.status === "pending" && (
                       <form action={withdrawSuggestionAction}>
+                        <input type="hidden" name="id" value={s.id} />
+                        <Button type="submit" size="sm" variant="ghost">
+                          Withdraw
+                        </Button>
+                      </form>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {speciesSuggestions.length > 0 && (
+            <section aria-labelledby="my-species-suggestions" className="space-y-4">
+              <h2 id="my-species-suggestions" className="text-xl font-semibold">
+                My species suggestions ({speciesSuggestions.length})
+              </h2>
+              <ul className="divide-y rounded-xl border">
+                {speciesSuggestions.map((s) => (
+                  <li key={s.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">
+                        {s.kind === "new" ? "New species: " : "Edit: "}
+                        {s.species ? (
+                          <Link href={`/species/${s.species.slug}`} className="text-wall hover:underline">
+                            {s.species.commonName}
+                          </Link>
+                        ) : (
+                          (s.payload.commonName ?? "Unnamed species")
+                        )}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {formatDate(s.createdAt)}
+                        {s.reviewNote && ` · Reviewer: ${s.reviewNote}`}
+                      </p>
+                    </div>
+                    <StatusBadge status={s.status} />
+                    {s.status === "pending" && (
+                      <form action={withdrawSpeciesSuggestionAction}>
                         <input type="hidden" name="id" value={s.id} />
                         <Button type="submit" size="sm" variant="ghost">
                           Withdraw

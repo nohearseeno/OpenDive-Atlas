@@ -6,10 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormMessage } from "@/components/shared/form-message";
 import { reviewSuggestionAction } from "@/application/actions/site-suggestions";
+import { reviewSpeciesSuggestionAction } from "@/application/actions/species-suggestions";
 import { initialActionState } from "@/application/action-state";
 
-export function ReviewSuggestionForm({ id, kind }: { id: string; kind: "edit" | "new" }) {
-  const [state, formAction, pending] = useActionState(reviewSuggestionAction, initialActionState);
+export function ReviewSuggestionForm({
+  id,
+  kind,
+  subject = "site",
+}: {
+  id: string;
+  kind: "edit" | "new";
+  subject?: "site" | "species";
+}) {
+  const [state, formAction, pending] = useActionState(
+    subject === "site" ? reviewSuggestionAction : reviewSpeciesSuggestionAction,
+    initialActionState,
+  );
   // Server actions don't receive the clicked button's name/value, so each
   // button writes its decision into this hidden field before submitting.
   const decision = useRef<HTMLInputElement>(null);
@@ -20,13 +32,15 @@ export function ReviewSuggestionForm({ id, kind }: { id: string; kind: "edit" | 
       <input ref={decision} type="hidden" name="decision" defaultValue="" />
       <FormMessage state={state} />
       <Input name="reviewNote" placeholder="Note to the diver (optional)" maxLength={1000} aria-label="Review note" />
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="markVerified" defaultChecked={kind === "edit"} className="size-4" />
-        Mark the site as verified
-      </label>
+      {subject === "site" && (
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="markVerified" defaultChecked={kind === "edit"} className="size-4" />
+          Mark the site as verified
+        </label>
+      )}
       <div className="flex flex-wrap gap-2">
         <Button type="submit" size="sm" disabled={pending} onClick={() => (decision.current!.value = "approve")}>
-          <Check /> {kind === "new" ? "Approve & add site" : "Approve & apply"}
+          <Check /> {kind === "new" ? `Approve & add ${subject}` : "Approve & apply"}
         </Button>
         <Button
           type="submit"
