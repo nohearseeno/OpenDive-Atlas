@@ -15,7 +15,9 @@ export async function respondToInviteAction(form: FormData): Promise<void> {
   if (!user) redirect(`/login?next=${encodeURIComponent(`/contributor/invite/${id}`)}`);
   if (!uuidSchema.safeParse(id).success) redirect("/profile");
 
-  const accept = str(form, "decision") === "accept";
+  const decision = str(form, "decision");
+  if (decision !== "accept" && decision !== "decline") redirect(`/contributor/invite/${id}`);
+  const accept = decision === "accept";
   let status: string;
   try {
     status = await respondToInvite(await createSupabaseServerClient(), id, accept);
