@@ -170,6 +170,32 @@ export const suggestionReviewSchema = z.object({
 
 export type SiteSuggestionInput = z.infer<typeof siteSuggestionSchema>;
 
+const iucnSchema = z.preprocess(emptyToNull, z.enum(["LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD", "NE"]).nullable());
+
+/** Species details a diver proposes (new species or corrections). */
+export const speciesSuggestionSchema = z.object({
+  commonName: z.preprocess(trimmed, z.string().min(2).max(120)),
+  scientificName: z.preprocess(
+    trimmed,
+    z
+      .string()
+      .min(2)
+      .max(160)
+      .regex(/^[A-Z][a-z]+( [a-z.-]+)+$/, "Use the binomial name, e.g. Holocentrus rufus"),
+  ),
+  category: z.enum(SPECIES_CATEGORIES),
+  description: z.preprocess(trimmed, z.string().max(2000)),
+  iucnStatus: iucnSchema,
+});
+
+export const speciesReviewSchema = z.object({
+  id: uuidSchema,
+  decision: z.enum(["approve", "reject"]),
+  reviewNote: optionalText(1000),
+});
+
+export type SpeciesSuggestionInput = z.infer<typeof speciesSuggestionSchema>;
+
 export const speciesSchema = z.object({
   slug: slugSchema,
   commonName: z.preprocess(trimmed, z.string().min(2).max(120)),

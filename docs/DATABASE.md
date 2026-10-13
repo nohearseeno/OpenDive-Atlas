@@ -16,6 +16,8 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000012_moderator_site_permissions.sql` | Moderators can read drafts, add and edit dive sites, and review site suggestions |
 | `migrations/20261013000013_top_contributors.sql` | `profiles.is_top_contributor`, `contributor_invites`, auto-invite trigger, `respond_contributor_invite()` |
 | `migrations/20261013000014_top_contributor_at_50.sql` | Invitation is sent on the 50th approved new site instead of the 51st |
+| `migrations/20261013000015_starter_species.sql` | 277 starter species across all categories (no site links) |
+| `migrations/20261013000016_species_suggestions.sql` | `species_suggestions` table and `review_species_suggestion()` |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD
@@ -163,11 +165,16 @@ All tables have RLS enabled. Helper functions `private.is_admin()` and `private.
 | reviews | approved, own, or moderator | self | own; moderator | own; moderator |
 | site_suggestions | own, or moderator | self (forced `pending`) | moderator | own while pending; admin |
 | contributor_invites | own, or moderator | — (trigger only) | — (via `respond_contributor_invite()`) | — |
+| species_suggestions | own, or moderator | self (forced `pending`) | — (via `review_species_suggestion()`) | own while pending; admin |
 
 ### Guard triggers
 
 - `protect_profile_role` — non-admins cannot change `profiles.role` or `profiles.is_top_contributor` (trusted `SECURITY DEFINER` functions can).
 - `site_suggestions_offer_top_contributor` — when a new-site suggestion is approved and its author now has 50 or more approved new sites, creates a pending `contributor_invites` row (once per diver).
+
+### Species suggestions
+
+Divers suggest a missing species (`species_id` null) or corrections to an existing one; edits store only the changed fields. Moderators review them with `review_species_suggestion(suggestion_id, approve, reviewer_note)`, a `SECURITY DEFINER` function that checks `private.is_moderator()`, applies the change (or inserts the species with a unique slug) and records the review in one transaction. Moderators can therefore approve species changes without having direct write access to `species`, which stays admin-only. A duplicate scientific name aborts the approval. Species suggestions don't count toward Top Contributor invitations.
 
 ### Top Contributor invitations
 

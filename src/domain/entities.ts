@@ -215,6 +215,28 @@ export interface SiteSuggestion {
   reviewedAt: string | null;
 }
 
+/** Proposed species values; for edits, only the fields that changed. */
+export interface SpeciesFieldValues {
+  commonName?: string;
+  scientificName?: string;
+  category?: SpeciesCategory;
+  description?: string;
+  iucnStatus?: string | null;
+}
+
+export interface SpeciesSuggestion {
+  id: string;
+  kind: "edit" | "new";
+  species: Pick<Species, "id" | "slug" | "commonName" | "scientificName"> | null;
+  diver: ProfileSummary | null;
+  payload: SpeciesFieldValues;
+  note: string | null;
+  status: ModerationStatus;
+  reviewNote: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+}
+
 export type InviteStatus = "pending" | "accepted" | "declined";
 
 /** Invitation to become a Top Contributor Moderator. */

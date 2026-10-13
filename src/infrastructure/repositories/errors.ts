@@ -21,5 +21,7 @@ export function raise(error: PostgrestError, context: string): never {
     PGRST116: "Not found.",
   };
   console.error(`[repository] ${context}:`, error.code, error.message);
+  // P0001 is raised by our own database functions with a message meant for users.
+  if (error.code === "P0001") throw new RepositoryError(error.message, error.code);
   throw new RepositoryError(friendly[error.code] ?? `Could not ${context}.`, error.code);
 }

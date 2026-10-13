@@ -280,6 +280,45 @@ export type Database = {
           },
         ];
       };
+      species_suggestions: {
+        Row: {
+          id: string;
+          species_id: string | null;
+          user_id: string;
+          payload: Json;
+          note: string | null;
+          status: ModerationStatus;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          species_id?: string | null;
+          user_id?: string;
+          payload: Json;
+          note?: string | null;
+        };
+        // Reviews go through review_species_suggestion().
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: "species_suggestions_species_id_fkey";
+            columns: ["species_id"];
+            isOneToOne: false;
+            referencedRelation: "species";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "species_suggestions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       contributor_invites: {
         Row: {
           id: string;
@@ -445,6 +484,10 @@ export type Database = {
           categories?: Database["public"]["Enums"]["species_category"][] | null;
         };
         Returns: SpeciesRow[];
+      };
+      review_species_suggestion: {
+        Args: { suggestion_id: string; approve: boolean; reviewer_note?: string | null };
+        Returns: ModerationStatus;
       };
       respond_contributor_invite: {
         Args: { invite_id: string; accept: boolean };
