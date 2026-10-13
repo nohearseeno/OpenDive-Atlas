@@ -1,12 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Route } from "lucide-react";
-import { useTrip } from "./trip-store";
+import { syncTripOwner, useTrip } from "./trip-store";
 
 /** Header shortcut to the trip planner, with the number of sites in the current trip. */
-export function TripHeaderLink() {
+export function TripHeaderLink({ userId }: { userId: string | null }) {
   const count = useTrip().sites.length;
+  // Rendered on every page, so it's where the trip is matched to the account.
+  useEffect(() => syncTripOwner(userId), [userId]);
   return (
     <Link
       href="/trip"

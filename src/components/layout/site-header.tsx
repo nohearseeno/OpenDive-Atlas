@@ -18,7 +18,7 @@ export async function SiteHeader() {
         <Logo />
         <MainNav />
         <div className="ml-auto flex items-center gap-2">
-          <TripHeaderLink />
+          <TripHeaderLink userId={user?.id ?? null} />
           {user ? (
             <>
               <Button asChild size="sm" variant="fin" className="hidden sm:inline-flex">

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Route } from "lucide-react";
 import { PageBand } from "@/components/shared/page-band";
 import { EmptyState } from "@/components/shared/empty-state";
-import { TripOwnerActions } from "@/components/trip/trip-owner-actions";
+import { CopyTripButton, TripOwnerActions } from "@/components/trip/trip-owner-actions";
 import { TripPlanView } from "@/components/trip/trip-plan-view";
 import { getSessionUser } from "@/application/session";
 import { getTrip } from "@/infrastructure/repositories/trips";
@@ -43,7 +43,7 @@ export default async function TripViewPage({ params }: Props) {
               : "Only you can see this trip."
             : "Planned with the OpenDive Atlas trip planner."
         }
-        actions={isOwner ? <TripOwnerActions trip={trip} /> : undefined}
+        actions={isOwner ? <TripOwnerActions trip={trip} /> : trip.sites.length ? <CopyTripButton trip={trip} /> : undefined}
       />
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {trip.plan ? (
