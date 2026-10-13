@@ -40,6 +40,21 @@ export async function GET(request: Request) {
       const text = res.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
       return NextResponse.json({ ok: true, credential, test, reply: text, usage: res.usage, ms: Date.now() - started });
     }
+    if (test === "claims") {
+      // Shows the identity-token claims Anthropic will see (never the token itself).
+      const { getVercelOidcToken } = await import("@vercel/oidc");
+      const { randomUUID } = await import("node:crypto");
+      const decode = (t: string) => JSON.parse(Buffer.from(t.split(".")[1]!, "base64url").toString("utf8"));
+      const pick = (c: Record<string, unknown>) => ({
+        iss: c.iss, sub: c.sub, aud: c.aud, has_jti: "jti" in c,
+        lifetime_s: typeof c.exp === "number" && typeof c.iat === "number" ? c.exp - c.iat : null,
+      });
+      const plain = decode(await getVercelOidcToken());
+      const exchanged = decode(
+        await getVercelOidcToken({ audience: "https://api.anthropic.com", jti: randomUUID(), skipCache: true }),
+      );
+      return NextResponse.json({ ok: true, credential, test, default_token: pick(plain), anthropic_token: pick(exchanged) });
+    }
     if (test === "recommend") {
       const q = url.searchParams.get("q") ?? "Warm water, turtles and sharks for a beginner in winter";
       const sites = await searchDiveSites(createAnonSupabase() as never);
