@@ -20,7 +20,7 @@ export function SiteFooter() {
             </p>
             <nav aria-label="Footer" className="flex flex-wrap gap-x-3 gap-y-1 md:justify-end">
               <Link href="/about" className="underline underline-offset-4">About</Link>
-              <Link href="/sightings/new" className="underline underline-offset-4">Contribute</Link>
+              <Link href="/contribute" className="underline underline-offset-4">Contribute</Link>
               <a href="https://github.com/nohearseeno/opendive-atlas" target="_blank" rel="noreferrer" className="underline underline-offset-4">
                 GitHub
               </a>

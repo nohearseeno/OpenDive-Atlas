@@ -196,6 +196,10 @@ Find my dive answers are cached in `recommendation_results` for 24 hours, keyed 
 
 `recommendation_history` keeps each signed-in diver's own searches with a copy of the result (RLS: own rows only, select/insert/delete). A trigger keeps the 30 most recent per diver.
 
+### Moderator applications
+
+`moderator_applications` holds volunteer applications (`about`, `regions`, `status` pending/approved/declined, reviewer and note). Divers with the `user` role can insert one for themselves (one pending at a time); they see their own, admins see all. `review_moderator_application(application_id, approve, reviewer_note)` is admin-only and, on approval, sets the diver's role to `moderator`.
+
 ### Trips
 
 `trips` holds saved itineraries: `title`, `sites` (array of `{slug, days}`, at most 25), `settings` (start date, home airport, experience level), the last generated `plan`, and `is_shared`. RLS lets divers read, create, update and delete their own trips, and lets anyone read a trip whose owner turned on `is_shared` (the share link is unlisted). The `trips_before_write` trigger caps trips at 50 per diver, keeps `updated_at` current, and stops `user_id` and `created_at` from being changed. Cached AI trip notes live in `recommendation_results` under a `trip:` key.

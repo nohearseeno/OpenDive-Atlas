@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/admin/photos", label: "Photos", adminOnly: true },
   { href: "/admin/suggestions", label: "Suggestions", adminOnly: false },
   { href: "/admin/moderation", label: "Moderation", adminOnly: false },
+  { href: "/admin/volunteers", label: "Volunteers", adminOnly: true },
 ];
 
 export function AdminNav({ isAdmin }: { isAdmin: boolean }) {
