@@ -91,7 +91,7 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `deleteSightingAction` | owner / moderator | id | Deletes sighting, its photos and storage objects |
 | `upsertReviewAction` | signed in | siteId, rating{MarineLife,Visibility,Photography,Difficulty}, body, divedOn | Creates or updates the user's single review for a site |
 | `deleteReviewAction` | owner / moderator | id | Deletes review |
-| `saveDiveSiteAction` | admin | all dive site fields (+ id to update) | Creates/updates a site |
+| `saveDiveSiteAction` | moderator | all dive site fields (+ id to update) | Creates/updates a site |
 | `deleteDiveSiteAction` | admin | id | Deletes a site (cascades) |
 | `addSiteSpeciesAction` / `removeSiteSpeciesAction` | admin | siteId, speciesId, frequency, notes | Curates "commonly sighted" list |
 | `saveSpeciesAction` / `deleteSpeciesAction` | admin | species fields (+ id) | Manages species |
@@ -99,7 +99,7 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `suggestSiteEditAction` | signed in | siteId, site fields, note, confirm | Stores only the changed fields as a pending suggestion |
 | `suggestNewSiteAction` | signed in | site fields, note | Stores a pending new-site suggestion |
 | `withdrawSuggestionAction` | author (pending) / admin | id | Deletes the suggestion |
-| `reviewSuggestionAction` | admin | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
+| `reviewSuggestionAction` | moderator | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |
 | `deletePhotoAction` | owner / moderator | id | Deletes a photo and its storage object |
 

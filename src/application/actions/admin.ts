@@ -37,9 +37,10 @@ const FORBIDDEN: ActionState = { ok: false, message: "Admin access required." };
 // ---------------------------------------------------------------------------
 // Dive sites
 // ---------------------------------------------------------------------------
+// Moderators and admins can add and edit sites; deleting is admin-only.
 export async function saveDiveSiteAction(_prev: ActionState, form: FormData): Promise<ActionState> {
   const user = await getSessionUser();
-  if (!isAdmin(user)) return FORBIDDEN;
+  if (!isModerator(user)) return { ok: false, message: "Moderator access required." };
 
   const parsed = diveSiteSchema.safeParse({
     slug: str(form, "slug"),

@@ -20,8 +20,8 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | 📸 **Community sightings** | Log sightings with date, count, depth, notes and up to 6 photos uploaded to Supabase Storage |
 | ⭐ **Ratings & reviews** | Rate marine life, visibility, photography and difficulty; aggregated per site |
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
-| ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by admins |
-| 🛡️ **Admin** | Create/edit dive sites & species, curate site species, upload credited photos (incl. the homepage hero), moderate sightings/reviews/photos |
+| ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
+| 🛡️ **Moderation & admin** | Moderators review site suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
 
 ## Tech stack
@@ -61,7 +61,37 @@ Sign up in the app, then run in Studio's SQL editor (or `psql`):
 update public.profiles set role = 'admin' where username = 'your_username';
 ```
 
-Roles: `user` (default), `moderator` (moderate community content), `admin` (moderation + manage sites/species).
+See [User roles](#user-roles) for what each role can do and how to promote a moderator.
+
+## User roles
+
+Every account has one role, stored in `profiles.role`. Each role includes everything the role above it in this table can do. Permissions are enforced by Postgres Row Level Security, not just hidden in the UI.
+
+| | Diver (`user`, default) | Moderator (`moderator`) | Admin (`admin`) |
+| --- | :---: | :---: | :---: |
+| Browse sites, species, sightings and reviews | ✅ | ✅ | ✅ |
+| Log sightings, upload photos, rate sites (own content) | ✅ | ✅ | ✅ |
+| Suggest edits to a site or suggest a new site | ✅ | ✅ | ✅ |
+| Hide/restore or delete anyone's sightings, reviews and photos | | ✅ | ✅ |
+| Review site suggestions (approve and apply, or reject) | | ✅ | ✅ |
+| Add new dive sites and edit site details, publish, mark verified | | ✅ | ✅ |
+| View unpublished (draft) sites | | ✅ | ✅ |
+| Delete dive sites | | | ✅ |
+| Create, edit and delete species | | | ✅ |
+| Curate a site's "commonly sighted" species | | | ✅ |
+| Add reference photos, upload curated photos, choose the homepage hero | | | ✅ |
+| Change users' roles | | | ✅ |
+
+Moderators and admins both reach the staff area at `/admin`. Moderators see Overview, Dive sites, Suggestions and Moderation; admins also see Species and Photos.
+
+There is no role-management screen yet. An admin changes a role in the Supabase SQL editor:
+
+```sql
+update public.profiles set role = 'moderator' where username = 'their_username';  -- promote
+update public.profiles set role = 'user'      where username = 'their_username';  -- demote
+```
+
+A database trigger stops anyone who isn't an admin from changing a role, including their own.
 
 ### Useful scripts
 

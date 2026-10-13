@@ -15,7 +15,7 @@ import type { DiveSite } from "@/domain/entities";
 
 /**
  * Lets a signed-in diver propose corrections to a site (pre-filled with the
- * current details) or suggest a new site. Admins review before anything changes.
+ * current details) or suggest a new site. A moderator reviews it before anything changes.
  */
 export function SuggestSiteForm({ site }: { site?: DiveSite }) {
   const [state, formAction] = useActionState(site ? suggestSiteEditAction : suggestNewSiteAction, initialActionState);

@@ -12,7 +12,7 @@ export default async function SuggestSitePage() {
     <>
       <PageBand
         title="Suggest a dive site"
-        description="Know a site that's missing? Add what you know. An admin reviews it before it appears on the map."
+        description="Know a site that's missing? Add what you know. A moderator reviews it before it appears on the map."
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
         <Card>

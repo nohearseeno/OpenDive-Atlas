@@ -20,7 +20,7 @@ export default async function SuggestEditPage({ params }: { params: Promise<{ sl
       <PageBand
         eyebrow="Suggest an edit"
         title={site.name}
-        description="Correct anything that's wrong or missing. An admin reviews every suggestion before the site page changes."
+        description="Correct anything that's wrong or missing. A moderator reviews every suggestion before the site page changes."
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
         <Card>

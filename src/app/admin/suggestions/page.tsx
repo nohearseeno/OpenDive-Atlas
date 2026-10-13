@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { SuggestionDiff } from "@/components/suggestions/suggestion-diff";
 import { ReviewSuggestionForm } from "@/components/suggestions/review-suggestion-form";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/application/session";
+import { requireModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { listSiteSuggestions } from "@/infrastructure/repositories/site-suggestions";
 import { getDiveSiteById } from "@/infrastructure/repositories/dive-sites";
@@ -15,7 +15,7 @@ import { cn, formatDate } from "@/lib/utils";
 const FILTERS = ["pending", "approved", "rejected", "all"] as const;
 
 export default async function AdminSuggestionsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  await requireAdmin("/admin/suggestions");
+  await requireModerator("/admin/suggestions");
   const raw = (await searchParams).status;
   const status = (FILTERS as readonly string[]).includes(raw ?? "") ? (raw as ModerationStatus | "all") : "pending";
   const db = await createSupabaseServerClient();
