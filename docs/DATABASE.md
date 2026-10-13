@@ -18,6 +18,7 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000014_top_contributor_at_50.sql` | Invitation is sent on the 50th approved new site instead of the 51st |
 | `migrations/20261013000015_starter_species.sql` | 277 starter species across all categories (no site links) |
 | `migrations/20261013000016_species_suggestions.sql` | `species_suggestions` table and `review_species_suggestion()` |
+| `migrations/20261013000017_maintenance_jobs.sql` | `pg_net`, `maintenance_tokens` for admin-run Edge Functions, service-role access to the role helpers |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD

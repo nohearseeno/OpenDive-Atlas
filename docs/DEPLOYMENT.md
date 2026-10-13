@@ -92,6 +92,29 @@ update public.profiles set role = 'admin' where username = '<your_username>';
 
 See [ENVIRONMENT.md](ENVIRONMENT.md#edge-function-secrets) for optional settings.
 
+## Filling in species photos
+
+The `fill-species-photos` Edge Function finds an openly licensed photo for every species that has none and stores it with the photographer credit, licence and a source link. It tries the species' English Wikipedia lead image first, using it only if it's hosted on Wikimedia Commons, then iNaturalist. Only CC0, public domain, CC BY and CC BY-SA photos are used; non-commercial and no-derivatives licences are skipped. Run it after adding species (for example after approving species suggestions):
+
+```sql
+-- 1. Allow the job (any random string of 32+ characters)
+insert into public.maintenance_tokens (job, token) values ('fill-species-photos', '<random-token>')
+on conflict (job) do update set token = excluded.token;
+
+-- 2. Run it for up to 25 species that still have no photo (repeat as needed)
+select net.http_post(
+  url := 'https://<project-ref>.supabase.co/functions/v1/fill-species-photos',
+  headers := jsonb_build_object('Authorization', 'Bearer <random-token>', 'Content-Type', 'application/json'),
+  body := '{}'::jsonb,
+  timeout_milliseconds := 150000);
+
+-- 3. Check the result, then switch the job off again
+select status_code, content from net._http_response order by id desc limit 1;
+delete from public.maintenance_tokens where job = 'fill-species-photos';
+```
+
+Deploy it once with `npx supabase functions deploy fill-species-photos`.
+
 ## Database changes after launch
 
 1. Add a new migration in `supabase/migrations/` (never edit applied ones).

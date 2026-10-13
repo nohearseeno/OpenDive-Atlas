@@ -420,3 +420,8 @@ enabled = true
 # the caller is signed in as a moderator or admin.
 [functions.send-contributor-invites]
 verify_jwt = false
+
+# Admin-run job that adds openly licensed species photos. It checks a token
+# from public.maintenance_tokens instead of a user JWT.
+[functions.fill-species-photos]
+verify_jwt = false
