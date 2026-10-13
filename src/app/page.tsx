@@ -6,7 +6,8 @@ import { SiteCard } from "@/components/sites/site-card";
 import { SightingList } from "@/components/sightings/sighting-list";
 import { SetupNotice } from "@/components/shared/setup-notice";
 import { DepthProfile, SeabedEdge } from "@/components/shared/depth-edges";
-import { DIVE_TYPE_LABELS, FILTER_DIVE_TYPES } from "@/domain/constants";
+import { SquirrelfishGlyph, TOP_CONTRIBUTOR_LABEL } from "@/components/shared/top-contributor-badge";
+import { DIVE_TYPE_LABELS, FILTER_DIVE_TYPES, TOP_CONTRIBUTOR_THRESHOLD } from "@/domain/constants";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { isSupabaseConfigured } from "@/infrastructure/supabase/env";
 import { countDiveSites, searchDiveSites } from "@/infrastructure/repositories/dive-sites";
@@ -14,10 +15,24 @@ import { countSpecies } from "@/infrastructure/repositories/species";
 import { countSightings, listSightings } from "@/infrastructure/repositories/sightings";
 import { getFeaturedPhoto } from "@/infrastructure/repositories/photos";
 
-const STEPS = [
+const STEPS: { icon: typeof Map; title: string; text: string; reward?: React.ReactNode }[] = [
   { icon: Map, title: "Explore the map", text: "Browse dive sites worldwide and filter by reef, wreck, shore, boat or experience level." },
   { icon: Fish, title: "Meet the locals", text: "See which marine life is commonly sighted at each site, with photos." },
-  { icon: Camera, title: "Log your sightings", text: "Record what you saw, add photos, and help map marine life over time." },
+  {
+    icon: Camera,
+    title: "Log your sightings",
+    text: "Record what you saw, add photos, and help map marine life over time.",
+    reward: (
+      <>
+        Add a missing dive site too: get more than {TOP_CONTRIBUTOR_THRESHOLD} approved and you&apos;ll be invited to
+        become a <strong className="text-sponge-ink font-semibold">{TOP_CONTRIBUTOR_LABEL}</strong>, with a squirrelfish
+        badge on your avatar.{" "}
+        <Link href="/sites/suggest" className="text-wall font-medium underline underline-offset-4">
+          Suggest a site →
+        </Link>
+      </>
+    ),
+  },
   { icon: Star, title: "Rate the dive", text: "Score marine life, visibility, photography and difficulty for the next diver." },
 ];
 
@@ -153,6 +168,14 @@ export default async function HomePage() {
                 </span>
                 <h3 className="text-lg font-semibold">{step.title}</h3>
                 <p className="text-muted-foreground text-sm">{step.text}</p>
+                {step.reward && (
+                  <p className="bg-sponge/15 flex gap-2 rounded-lg p-2.5 text-sm">
+                    <span className="bg-sponge text-sponge-ink mt-0.5 grid size-5 shrink-0 place-items-center rounded-full">
+                      <SquirrelfishGlyph className="w-4" />
+                    </span>
+                    <span>{step.reward}</span>
+                  </p>
+                )}
               </li>
             ))}
           </ol>

@@ -413,3 +413,10 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Emails Top Contributor invitations via Resend. Called by the app after a
+# moderator approves a suggestion. JWT verification is off at the gateway so
+# it works with both legacy and new API keys; the function itself checks that
+# the caller is signed in as a moderator or admin.
+[functions.send-contributor-invites]
+verify_jwt = false

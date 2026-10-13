@@ -102,6 +102,8 @@ export interface ProfileSummary {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
+  /** Earned the Top Contributor Moderator badge. */
+  isTopContributor: boolean;
 }
 
 export interface Profile extends ProfileSummary {
@@ -211,4 +213,16 @@ export interface SiteSuggestion {
   reviewNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
+}
+
+export type InviteStatus = "pending" | "accepted" | "declined";
+
+/** Invitation to become a Top Contributor Moderator. */
+export interface ContributorInvite {
+  id: string;
+  userId: string;
+  approvedSites: number;
+  status: InviteStatus;
+  emailSentAt: string | null;
+  createdAt: string;
 }

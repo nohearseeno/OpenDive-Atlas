@@ -5,7 +5,7 @@ import { toPhoto, toProfileSummary } from "./mappers";
 
 const SIGHTING_SELECT = `
   id, observed_on, quantity, depth_m, notes, status, created_at,
-  profiles(id, username, display_name, avatar_url),
+  profiles(id, username, display_name, avatar_url, is_top_contributor),
   dive_sites(id, slug, name, country),
   species(id, slug, common_name, scientific_name),
   photos(*)

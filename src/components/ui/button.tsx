@@ -16,6 +16,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         fin: "bg-fin text-reef-hole shadow-xs hover:bg-fin/85",
         cream: "bg-cream text-reef-hole shadow-xs hover:bg-cream/90",
+        sponge: "bg-sponge text-reef-hole shadow-xs hover:bg-sponge/85",
       },
       size: {
         default: "h-9 px-5 py-2 has-[>svg]:px-4",

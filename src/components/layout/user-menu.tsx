@@ -12,31 +12,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOutAction } from "@/application/actions/auth";
+import { TOP_CONTRIBUTOR_LABEL, TopContributorBadge } from "@/components/shared/top-contributor-badge";
 
 export function UserMenu({
   username,
   displayName,
   avatarUrl,
   isStaff,
+  isTopContributor = false,
 }: {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
   isStaff: boolean;
+  isTopContributor?: boolean;
 }) {
   const name = displayName || username;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-ring/50 rounded-full outline-none focus-visible:ring-[3px]" aria-label="Account menu">
-        <Avatar className="ring-fin/60 ring-2">
-          {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-          <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <span className="relative inline-flex">
+          <Avatar className="ring-fin/60 ring-2">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
+            <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          {isTopContributor && <TopContributorBadge className="ring-reef-hole" />}
+        </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>
           <div className="truncate">{name}</div>
           <div className="text-muted-foreground truncate text-xs font-normal">@{username}</div>
+          {isTopContributor && <div className="text-sponge-ink mt-1 text-xs font-medium">{TOP_CONTRIBUTOR_LABEL}</div>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

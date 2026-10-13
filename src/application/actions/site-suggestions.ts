@@ -14,6 +14,7 @@ import {
   markSuggestionReviewed,
   siteFieldValues,
 } from "@/infrastructure/repositories/site-suggestions";
+import { sendPendingInviteEmails } from "@/infrastructure/repositories/contributor-invites";
 import { slugify } from "@/lib/utils";
 import { getSessionUser, isModerator } from "../session";
 import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
@@ -175,6 +176,9 @@ export async function reviewSuggestionAction(_prev: ActionState, form: FormData)
       }
     }
     await markSuggestionReviewed(db, id, decision === "approve" ? "approved" : "rejected", user!.id, reviewNote);
+    // Approving a new site may have earned its author a Top Contributor
+    // invitation (created by a database trigger); email it if so.
+    if (decision === "approve" && suggestion.kind === "new") await sendPendingInviteEmails(db);
   } catch (error) {
     return fromUnknownError(error);
   }

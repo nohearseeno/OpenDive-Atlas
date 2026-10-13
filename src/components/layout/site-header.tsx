@@ -28,6 +28,7 @@ export async function SiteHeader() {
                 username={profile?.username ?? "diver"}
                 displayName={profile?.displayName ?? null}
                 avatarUrl={profile?.avatarUrl ?? null}
+                isTopContributor={profile?.isTopContributor ?? false}
                 isStaff={isModerator(user)}
               />
             </>

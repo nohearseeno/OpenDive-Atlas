@@ -100,6 +100,7 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `suggestNewSiteAction` | signed in | site fields, note | Stores a pending new-site suggestion |
 | `withdrawSuggestionAction` | author (pending) / admin | id | Deletes the suggestion |
 | `reviewSuggestionAction` | moderator | id, decision (`approve`/`reject`), markVerified, reviewNote | Approve applies the edit or creates the site; reject records the decision |
+| `respondToInviteAction` | invited diver | id, decision (`accept`/`decline`) | Accepts or declines a Top Contributor invitation; accepting grants the badge and moderator role |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |
 | `deletePhotoAction` | owner / moderator | id | Deletes a photo and its storage object |
 

@@ -74,6 +74,7 @@ export type Database = {
           home_country: string | null;
           certification_level: string | null;
           role: Database["public"]["Enums"]["user_role"];
+          is_top_contributor: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -86,6 +87,7 @@ export type Database = {
           home_country?: string | null;
           certification_level?: string | null;
           role?: Database["public"]["Enums"]["user_role"];
+          is_top_contributor?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -97,6 +99,7 @@ export type Database = {
           home_country?: string | null;
           certification_level?: string | null;
           role?: Database["public"]["Enums"]["user_role"];
+          is_top_contributor?: boolean;
         };
         Relationships: [];
       };
@@ -277,6 +280,29 @@ export type Database = {
           },
         ];
       };
+      contributor_invites: {
+        Row: {
+          id: string;
+          user_id: string;
+          approved_sites: number;
+          status: Database["public"]["Enums"]["invite_status"];
+          email_sent_at: string | null;
+          responded_at: string | null;
+          created_at: string;
+        };
+        // Written only by database functions and the email Edge Function.
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: "contributor_invites_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       site_suggestions: {
         Row: {
           id: string;
@@ -420,6 +446,10 @@ export type Database = {
         };
         Returns: SpeciesRow[];
       };
+      respond_contributor_invite: {
+        Args: { invite_id: string; accept: boolean };
+        Returns: Database["public"]["Enums"]["invite_status"];
+      };
     };
     Enums: {
       user_role: "user" | "moderator" | "admin";
@@ -438,6 +468,7 @@ export type Database = {
         | "invertebrate";
       sighting_frequency: "rare" | "occasional" | "common" | "abundant";
       moderation_status: "pending" | "approved" | "rejected";
+      invite_status: "pending" | "accepted" | "declined";
     };
     CompositeTypes: Record<string, never>;
   };
