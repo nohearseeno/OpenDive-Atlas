@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { Wave } from "@/components/shared/wave";
-import { SHOALBASE_URL } from "@/components/shoalbase/shoalbase-link";
+import { SeabedEdge } from "@/components/shared/depth-edges";
 
 export function SiteFooter() {
   return (
     <footer className="mt-16">
-      <Wave className="fill-sponge" />
+      <SeabedEdge className="fill-sponge" rippleClassName="stroke-sponge-ink/35" />
       <div className="bg-sponge text-reef-hole">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pt-6 pb-10 sm:px-6 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
@@ -14,11 +13,7 @@ export function SiteFooter() {
           </div>
           <div className="space-y-2 text-sm md:text-right">
             <p>
-              Partner project:{" "}
-              <a href={SHOALBASE_URL} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-4">
-                ShoalBase
-              </a>{" "}
-              · Map data ©{" "}
+              Map data ©{" "}
               <a className="underline underline-offset-4" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
                 OpenStreetMap
               </a>

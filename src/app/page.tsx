@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SiteCard } from "@/components/sites/site-card";
 import { SightingList } from "@/components/sightings/sighting-list";
 import { SetupNotice } from "@/components/shared/setup-notice";
-import { Wave } from "@/components/shared/wave";
-import { ShoalBasePanel } from "@/components/shoalbase/shoalbase-link";
+import { DepthProfile, SeabedEdge } from "@/components/shared/depth-edges";
 import { DIVE_TYPE_LABELS, FILTER_DIVE_TYPES } from "@/domain/constants";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { isSupabaseConfigured } from "@/infrastructure/supabase/env";
@@ -94,12 +93,12 @@ export default async function HomePage() {
           </nav>
         </div>
         {hero && (
-          <p className="text-cream/80 absolute right-4 bottom-14 text-xs sm:bottom-16">
+          <p className="text-cream/80 absolute right-4 bottom-24 text-xs sm:bottom-32">
             {hero.caption ?? hero.speciesName}
             {hero.attribution && <> · Photo © {hero.attribution}</>}
           </p>
         )}
-        <Wave className="fill-wall absolute inset-x-0 -bottom-px" />
+        <DepthProfile className="fill-wall absolute inset-x-0 -bottom-px" />
       </section>
 
       {!configured && (
@@ -137,7 +136,7 @@ export default async function HomePage() {
               ))}
             </dl>
           </div>
-          <Wave className="fill-background" />
+          <SeabedEdge className="fill-background" />
         </section>
       )}
 
@@ -173,7 +172,6 @@ export default async function HomePage() {
           </section>
         )}
 
-        <ShoalBasePanel />
       </div>
     </>
   );

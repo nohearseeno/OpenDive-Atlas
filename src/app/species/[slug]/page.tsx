@@ -5,8 +5,7 @@ import { Camera, ChevronRight, MapPin, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Wave } from "@/components/shared/wave";
-import { ShoalBasePanel } from "@/components/shoalbase/shoalbase-link";
+import { SeabedEdge } from "@/components/shared/depth-edges";
 import { PhotoImage } from "@/components/shared/photo-image";
 import { PhotoGallery } from "@/components/photos/photo-gallery";
 import { SightingList } from "@/components/sightings/sighting-list";
@@ -99,11 +98,9 @@ export default async function SpeciesPage({ params }: Props) {
           </div>
         </div>
       </div>
-      <Wave className="fill-background" />
+      <SeabedEdge className="fill-background" />
     </div>
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      {species.category === "fish" && <ShoalBasePanel speciesName={species.commonName} />}
-
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
         <section aria-labelledby="where" className="space-y-4">
           <h2 id="where" className="text-wall text-2xl font-semibold">

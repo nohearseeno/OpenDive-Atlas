@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageBand } from "@/components/shared/page-band";
-import { ShoalBasePanel } from "@/components/shoalbase/shoalbase-link";
 import { SiteFacts } from "@/components/sites/site-facts";
 import { SiteSpeciesList } from "@/components/sites/site-species-list";
 import { RatingSummary } from "@/components/sites/rating-summary";
@@ -20,7 +19,7 @@ import { SiteLocationMap } from "@/components/map/site-location-map";
 import { getSessionUser, isAdmin, isModerator } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteBySlug, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
-import { getSpeciesBySlug, getSpeciesCoverPhotos } from "@/infrastructure/repositories/species";
+import { getSpeciesCoverPhotos } from "@/infrastructure/repositories/species";
 import { listSitePhotos } from "@/infrastructure/repositories/photos";
 import { listSightings } from "@/infrastructure/repositories/sightings";
 import { getUserReviewForSite, listReviews } from "@/infrastructure/repositories/reviews";
@@ -45,9 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SitePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const query = await searchParams;
-  const flash = query.sighting;
-  const loggedSpeciesSlug = typeof query.species === "string" ? query.species : null;
+  const flash = (await searchParams).sighting;
   const db = await createSupabaseServerClient();
   const site = await getDiveSiteBySlug(db, slug);
   if (!site) notFound();
@@ -60,8 +57,6 @@ export default async function SitePage({ params, searchParams }: Props) {
     listReviews(db, { siteId: site.id, limit: 20 }),
     user ? getUserReviewForSite(db, site.id, user.id) : Promise.resolve(null),
   ]);
-  const loggedSpecies =
-    flash === "created" && loggedSpeciesSlug ? await getSpeciesBySlug(db, loggedSpeciesSlug) : null;
   const covers = await getSpeciesCoverPhotos(
     db,
     siteSpecies.map((s) => s.species.id),
@@ -126,13 +121,10 @@ export default async function SitePage({ params, searchParams }: Props) {
       />
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
       {flash === "created" && (
-        <div className="mb-6 space-y-3">
-          <Alert variant="success">
-            <CheckCircle2 />
-            <AlertDescription>Thanks! Your sighting has been added.</AlertDescription>
-          </Alert>
-          {loggedSpecies?.category === "fish" && <ShoalBasePanel speciesName={loggedSpecies.commonName} />}
-        </div>
+        <Alert variant="success" className="mb-6">
+          <CheckCircle2 />
+          <AlertDescription>Thanks! Your sighting has been added.</AlertDescription>
+        </Alert>
       )}
 
       <div className="grid gap-8 lg:grid-cols-3">
@@ -192,7 +184,6 @@ export default async function SitePage({ params, searchParams }: Props) {
                 Add yours →
               </Link>
             </div>
-            {siteSpecies.some((s) => s.species.category === "fish") && <ShoalBasePanel />}
             {sightings.length ? (
               <SightingList sightings={sightings} showSite={false} currentUserId={user?.id} canModerate={isModerator(user)} />
             ) : (
