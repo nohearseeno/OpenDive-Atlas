@@ -120,5 +120,5 @@ export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 export const MAX_PHOTOS_PER_SIGHTING = 6;
 export const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
 
-/** A diver with more than this many approved new-site suggestions is invited to be a Top Contributor Moderator. */
+/** A diver whose approved new-site suggestions reach this number is invited to be a Top Contributor Moderator. */
 export const TOP_CONTRIBUTOR_THRESHOLD = 50;

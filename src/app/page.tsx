@@ -24,7 +24,7 @@ const STEPS: { icon: typeof Map; title: string; text: string; reward?: React.Rea
     text: "Record what you saw, add photos, and help map marine life over time.",
     reward: (
       <>
-        Add a missing dive site too: get more than {TOP_CONTRIBUTOR_THRESHOLD} approved and you&apos;ll be invited to
+        Add a missing dive site too: get {TOP_CONTRIBUTOR_THRESHOLD} approved and you&apos;ll be invited to
         become a <strong className="text-sponge-ink font-semibold">{TOP_CONTRIBUTOR_LABEL}</strong>, with a squirrelfish
         badge on your avatar.{" "}
         <Link href="/sites/suggest" className="text-wall font-medium underline underline-offset-4">
