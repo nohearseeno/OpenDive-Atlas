@@ -18,13 +18,16 @@ function federationConfigured(): boolean {
   return Boolean(process.env.ANTHROPIC_FEDERATION_RULE_ID && process.env.ANTHROPIC_ORGANIZATION_ID);
 }
 
+/**
+ * Claude access plus the 'ai-review' job token, which the server needs to take
+ * rate-limit quota, use the shared cache and record AI moderator verdicts.
+ */
 export function isAiConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY) || federationConfigured();
+  return (Boolean(process.env.ANTHROPIC_API_KEY) || federationConfigured()) && Boolean(process.env.AI_REVIEW_TOKEN);
 }
 
-/** The AI moderator also needs the token that lets it record verdicts. */
 export function isAiModeratorConfigured(): boolean {
-  return isAiConfigured() && Boolean(process.env.AI_REVIEW_TOKEN);
+  return isAiConfigured();
 }
 
 let anthropic: Anthropic | null = null;

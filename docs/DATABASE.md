@@ -190,7 +190,7 @@ The AI moderator runs in the Next.js app with no database role of its own. It ca
   - On `rejected` it rejects the suggestion with the AI's reason.
   - It skips suggestions a human already reviewed.
 
-`take_recommendation_quota(ip_hash)` enforces the Find my dive limits (10 per visitor per hour, 1,000 per day) using `recommendation_requests`, which only that function can read.
+`take_recommendation_quota(token, ip_hash)` enforces the AI limits for Find my dive and trip notes (10 per visitor per hour, 1,000 per day) using `recommendation_requests`, which only that function can read. It requires the `ai-review` job token, so only the app server can take quota; otherwise anyone with the public API key could use up the daily cap.
 
 Find my dive answers are cached in `recommendation_results` for 24 hours, keyed by a SHA-256 hash of the normalised query (lower-cased, whitespace collapsed). The table holds what visitors typed, so nobody can read it directly; the app uses `get_cached_recommendation(token, hash)` and `save_recommendation(token, hash, query, result)`, which require the `ai-review` job token. Rows older than two days are purged on each save. Results store site slugs and reasons only, and the app matches them to current site details when showing them.
 

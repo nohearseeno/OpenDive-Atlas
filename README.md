@@ -177,7 +177,7 @@ update public.profiles set is_top_contributor = false, role = 'user' where usern
 - [Environment variables](docs/ENVIRONMENT.md)
 - [Deployment guide](docs/DEPLOYMENT.md) — Supabase + Vercel
 - [Logo files](brand/README.md): vector logo and mark (SVG and PDF) with colours and usage guidance
-- [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md)
+- [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md) · [Security policy](SECURITY.md)
 
 ## Seed data
 
