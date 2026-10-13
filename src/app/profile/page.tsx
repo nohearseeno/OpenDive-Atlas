@@ -9,15 +9,22 @@ import { requireUser } from "@/application/session";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { listSightings } from "@/infrastructure/repositories/sightings";
 import { listReviews } from "@/infrastructure/repositories/reviews";
+import { listSiteSuggestions } from "@/infrastructure/repositories/site-suggestions";
+import { withdrawSuggestionAction } from "@/application/actions/site-suggestions";
+import { StatusBadge } from "@/components/shared/status-badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My profile" };
 
 export default async function ProfilePage() {
   const user = await requireUser("/profile");
   const db = await createSupabaseServerClient();
-  const [sightings, reviews] = await Promise.all([
+  const [sightings, reviews, suggestions] = await Promise.all([
     listSightings(db, { userId: user.id, status: "all", limit: 50 }),
     listReviews(db, { userId: user.id, status: "all", limit: 50 }),
+    listSiteSuggestions(db, { userId: user.id, status: "all", limit: 50 }),
   ]);
 
   return (
@@ -44,6 +51,44 @@ export default async function ProfilePage() {
               <EmptyState title="No sightings yet">Log your first sighting from any dive site page.</EmptyState>
             )}
           </section>
+          {suggestions.length > 0 && (
+            <section aria-labelledby="my-suggestions" className="space-y-4">
+              <h2 id="my-suggestions" className="text-xl font-semibold">
+                My site suggestions ({suggestions.length})
+              </h2>
+              <ul className="divide-y rounded-xl border">
+                {suggestions.map((s) => (
+                  <li key={s.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">
+                        {s.kind === "new" ? "New site: " : "Edit: "}
+                        {s.site ? (
+                          <Link href={`/sites/${s.site.slug}`} className="text-wall hover:underline">
+                            {s.site.name}
+                          </Link>
+                        ) : (
+                          (s.payload.name ?? "Unnamed site")
+                        )}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {formatDate(s.createdAt)}
+                        {s.reviewNote && ` · Reviewer: ${s.reviewNote}`}
+                      </p>
+                    </div>
+                    <StatusBadge status={s.status} />
+                    {s.status === "pending" && (
+                      <form action={withdrawSuggestionAction}>
+                        <input type="hidden" name="id" value={s.id} />
+                        <Button type="submit" size="sm" variant="ghost">
+                          Withdraw
+                        </Button>
+                      </form>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <section aria-labelledby="my-reviews" className="space-y-4">
             <h2 id="my-reviews" className="text-xl font-semibold">
               My ratings ({reviews.length})

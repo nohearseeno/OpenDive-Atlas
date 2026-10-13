@@ -11,6 +11,10 @@ export function MapLegend({ className }: { className?: string }) {
             {EXPERIENCE_LABELS[level]}
           </li>
         ))}
+        <li className="flex items-center gap-1.5">
+          <span className="inline-block size-3 rounded-full border border-dashed border-current" />
+          Unverified
+        </li>
       </ul>
     </div>
   );

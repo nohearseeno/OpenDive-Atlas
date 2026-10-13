@@ -10,7 +10,9 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261011000004_views_and_search.sql` | `dive_site_summaries`, `site_species_sighting_stats`, `search_dive_sites()`, `search_species()` |
 | `migrations/20261011000005_harden_helpers.sql` | Moves role helpers to the non-exposed `private` schema |
 | `migrations/20261013000007_featured_photos_and_squirrelfish.sql` | `photos.is_featured` (homepage hero), admin uploads to `site/`, long-spined squirrelfish |
-| `migrations/20261013000008_consolidate_policies.sql` | Merges owner/moderator policies into one per action (performance) |
+| `migrations/20261013000009_site_verification_and_suggestions.sql` | `dive_sites.is_verified`, `site_suggestions` table + RLS |
+| `migrations/20261013000010_starter_dive_sites.sql` | 211 unverified starter dive sites across all regions |
+| `migrations/20261013000011_consolidate_policies.sql` | Merges owner/moderator policies into one per action (performance) |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD
@@ -18,6 +20,8 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 ```mermaid
 erDiagram
   AUTH_USERS ||--|| PROFILES : "1:1 (trigger)"
+  PROFILES ||--o{ SITE_SUGGESTIONS : proposes
+  DIVE_SITES ||--o{ SITE_SUGGESTIONS : "edits for"
   PROFILES ||--o{ SIGHTINGS : logs
   PROFILES ||--o{ REVIEWS : writes
   PROFILES ||--o{ PHOTOS : uploads
@@ -60,6 +64,18 @@ erDiagram
     text description
     text access_notes
     bool is_published
+    bool is_verified "false = starter entry"
+  }
+  SITE_SUGGESTIONS {
+    uuid id PK
+    uuid site_id FK "null = new site"
+    uuid user_id FK
+    jsonb payload "proposed field values"
+    text note
+    moderation_status status "pending until reviewed"
+    uuid reviewed_by FK
+    timestamptz reviewed_at
+    text review_note
   }
   SPECIES {
     uuid id PK
@@ -141,6 +157,7 @@ All tables have RLS enabled. Helper functions `private.is_admin()` and `private.
 | sightings | approved, own, or moderator | self (`user_id = auth.uid()`) | own; moderator | own; moderator |
 | photos | approved, own, or moderator | self, own storage folder, own sighting; admin (any incl. external URLs) | own; moderator | own; moderator |
 | reviews | approved, own, or moderator | self | own; moderator | own; moderator |
+| site_suggestions | own, or moderator | self (forced `pending`) | admin | own while pending; admin |
 
 ### Guard triggers
 

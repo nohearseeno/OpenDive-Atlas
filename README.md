@@ -20,6 +20,7 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | 📸 **Community sightings** | Log sightings with date, count, depth, notes and up to 6 photos uploaded to Supabase Storage |
 | ⭐ **Ratings & reviews** | Rate marine life, visibility, photography and difficulty; aggregated per site |
 | 📱 **Responsive** | Mobile-first layouts, collapsible map list, accessible forms and lightbox |
+| ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by admins |
 | 🛡️ **Admin** | Create/edit dive sites & species, curate site species, upload credited photos (incl. the homepage hero), moderate sightings/reviews/photos |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
 
@@ -85,7 +86,9 @@ Roles: `user` (default), `moderator` (moderate community content), `admin` (mode
 
 ## Seed data
 
-Ten dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), Bonaire (Salt Pier, Hilma Hooker), Cozumel (Palancar Reef, Santa Rosa Wall), Hawaii (Molokini Crater) and Australia (Cod Hole, Osprey Reef), 33 species, 64 site–species links and reference photos from Wikimedia Commons.
+**Starter dataset (migration `…0010`):** 211 well-known dive sites across the Caribbean & Florida, Indo-Pacific, Red Sea & Mediterranean and the Americas/Africa, published as **unverified** starter entries (approximate coordinates and typical conditions) for the community to confirm.
+
+**Reference seed (`seed.sql`):** ten fully described dive sites across Florida (Blue Heron Bridge, Molasses Reef, USS Oriskany), Bonaire (Salt Pier, Hilma Hooker), Cozumel (Palancar Reef, Santa Rosa Wall), Hawaii (Molokini Crater) and Australia (Cod Hole, Osprey Reef), 33 species, 64 site–species links and reference photos from Wikimedia Commons.
 
 Coordinates are approximate and for orientation only. **Always confirm entry points, conditions and permits with a local operator.**
 

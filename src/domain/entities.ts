@@ -43,6 +43,8 @@ export interface DiveSite {
   description: string;
   accessNotes: string | null;
   isPublished: boolean;
+  /** False for starter entries whose details haven't been confirmed by a diver. */
+  isVerified: boolean;
   updatedAt: string;
 }
 
@@ -65,6 +67,7 @@ export interface DiveSiteMarker {
   experienceLevel: ExperienceLevel;
   maxDepthM: number | null;
   ratingOverall: number | null;
+  isVerified: boolean;
 }
 
 export interface Species {
@@ -176,4 +179,36 @@ export interface SpeciesOption {
   slug: string;
   commonName: string;
   scientificName: string;
+}
+
+/** Fields a diver can propose for a site (all optional; only changes are stored). */
+export interface SiteFieldValues {
+  name?: string;
+  country?: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
+  diveTypes?: DiveType[];
+  experienceLevel?: ExperienceLevel;
+  visibilityMinM?: number | null;
+  visibilityMaxM?: number | null;
+  tempMinC?: number | null;
+  tempMaxC?: number | null;
+  maxDepthM?: number | null;
+  typicalCurrent?: CurrentStrength;
+  description?: string;
+  accessNotes?: string | null;
+}
+
+export interface SiteSuggestion {
+  id: string;
+  kind: "edit" | "new";
+  site: Pick<DiveSite, "id" | "slug" | "name"> | null;
+  diver: ProfileSummary | null;
+  payload: SiteFieldValues;
+  note: string | null;
+  status: ModerationStatus;
+  reviewNote: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
 }

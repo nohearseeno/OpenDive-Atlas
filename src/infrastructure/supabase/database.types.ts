@@ -30,6 +30,7 @@ type DiveSiteRow = {
   description: string;
   access_notes: string | null;
   is_published: boolean;
+  is_verified: boolean;
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
@@ -270,6 +271,53 @@ export type Database = {
           {
             foreignKeyName: "photos_uploaded_by_fkey";
             columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      site_suggestions: {
+        Row: {
+          id: string;
+          site_id: string | null;
+          user_id: string;
+          payload: Json;
+          note: string | null;
+          status: ModerationStatus;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          site_id?: string | null;
+          user_id?: string;
+          payload: Json;
+          note?: string | null;
+          status?: ModerationStatus;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
+        };
+        Update: {
+          status?: ModerationStatus;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "site_suggestions_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "dive_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "site_suggestions_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];

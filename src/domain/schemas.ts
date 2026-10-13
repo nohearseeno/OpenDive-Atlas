@@ -117,6 +117,7 @@ export const diveSiteSchema = z
     description: z.preprocess(trimmed, z.string().max(10000)),
     accessNotes: optionalText(2000),
     isPublished: z.boolean(),
+    isVerified: z.boolean(),
   })
   .refine((v) => v.visibilityMinM == null || v.visibilityMaxM == null || v.visibilityMinM <= v.visibilityMaxM, {
     message: "Minimum visibility must not exceed maximum",
@@ -126,6 +127,48 @@ export const diveSiteSchema = z
     message: "Minimum temperature must not exceed maximum",
     path: ["tempMaxC"],
   });
+
+/**
+ * A diver's proposed site details. Same rules as the admin form, minus the
+ * admin-only fields (slug, publish/verify flags).
+ */
+export const siteSuggestionSchema = z
+  .object({
+    name: z.preprocess(trimmed, z.string().min(2).max(120)),
+    country: z.preprocess(trimmed, z.string().min(2).max(80)),
+    region: z.preprocess(trimmed, z.string().min(2).max(120)),
+    latitude: z.coerce.number().min(-90).max(90),
+    longitude: z.coerce.number().min(-180).max(180),
+    diveTypes: z.array(z.enum(DIVE_TYPES)).min(1, "Pick at least one dive type"),
+    experienceLevel: z.enum(EXPERIENCE_LEVELS),
+    visibilityMinM: optionalNumber(0, 100),
+    visibilityMaxM: optionalNumber(0, 100),
+    tempMinC: optionalNumber(-2, 40),
+    tempMaxC: optionalNumber(-2, 40),
+    maxDepthM: optionalNumber(0, 350),
+    typicalCurrent: z.enum(CURRENT_STRENGTHS),
+    description: z.preprocess(trimmed, z.string().max(10000)),
+    accessNotes: optionalText(2000),
+  })
+  .refine((v) => v.visibilityMinM == null || v.visibilityMaxM == null || v.visibilityMinM <= v.visibilityMaxM, {
+    message: "Minimum visibility must not exceed maximum",
+    path: ["visibilityMaxM"],
+  })
+  .refine((v) => v.tempMinC == null || v.tempMaxC == null || v.tempMinC <= v.tempMaxC, {
+    message: "Minimum temperature must not exceed maximum",
+    path: ["tempMaxC"],
+  });
+
+export const suggestionNoteSchema = optionalText(2000);
+
+export const suggestionReviewSchema = z.object({
+  id: uuidSchema,
+  decision: z.enum(["approve", "reject"]),
+  markVerified: z.boolean(),
+  reviewNote: optionalText(1000),
+});
+
+export type SiteSuggestionInput = z.infer<typeof siteSuggestionSchema>;
 
 export const speciesSchema = z.object({
   slug: slugSchema,
