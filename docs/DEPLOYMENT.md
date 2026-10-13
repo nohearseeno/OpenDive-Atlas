@@ -83,6 +83,9 @@ update public.profiles set role = 'admin' where username = '<your_username>';
 - [ ] `/admin` is reachable for your admin account only
 - [ ] Run `npm run seed:verify-photos` and apply the generated credits SQL
 - [ ] Switch `NEXT_PUBLIC_MAP_TILE_URL` to a production tile provider if you expect significant traffic
+- [ ] Enable **Web Analytics** in the Vercel project's Analytics tab, then redeploy (analytics only records on deployments made after it's enabled)
+- [ ] Add the domain to [Google Search Console](https://search.google.com/search-console) (a Domain property, verified by DNS), submit `https://<your-domain>/sitemap.xml`, and import it into Bing Webmaster Tools. "Couldn't fetch" right after submitting usually just means "not read yet"
+- [ ] Paste a site link into a messaging app to check the share card appears
 
 ## Top Contributor invitation emails
 

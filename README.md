@@ -24,7 +24,9 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 | ✍️ **Community site data** | 200+ starter dive sites flagged as unverified; signed-in divers confirm or correct details and suggest new sites, reviewed by moderators |
 | 🤖 **AI moderator** | Claude checks every site and species suggestion (with web search). Confident approvals go live as *Digitally reviewed*; a human moderator then marks them *Human reviewed* |
 | ✨ **Find my dive** | Describe the dive you want in plain words and get site recommendations from the atlas |
-| 🧭 **Trip planner** | Pick sites (from the map, site pages, Find my dive or a description) and get the best route, airports, a day-by-day plan with a topside day before every flight, and AI notes on seasons and logistics; save and share trips |
+| 🧭 **Trip planner** | Pick sites (from the map, site pages, Find my dive or a description) and get the best route, airports, a day-by-day plan with a topside day before every flight, and AI notes on seasons and logistics; save and share trips. The trip being built belongs to whoever is signed in, and shared trips can be copied into your own planner |
+| 🤝 **Get involved** | `/contribute` lists every way to help with live counts; divers can volunteer as moderators and admins approve them in one click |
+| 🔎 **Sharing & search** | Branded share cards for sites, species and shared trips; schema.org data on site pages; sitemap; cookie-free Vercel Web Analytics |
 | 🐟 **Top Contributors** | Divers with 50 approved new sites are invited by email to become Top Contributor Moderators, with a squirrelfish avatar badge |
 | 🛡️ **Moderation & admin** | Moderators review site and species suggestions, add/edit dive sites and moderate community content; admins also manage species, curated photos and roles — see [User roles](#user-roles) |
 | 🔌 **Public API** | Read-only JSON + GeoJSON endpoints |
@@ -35,6 +37,9 @@ OpenDive Atlas is an open-source web app that helps scuba divers **discover dive
 - **Backend:** Supabase — PostgreSQL, Row Level Security, Auth, Storage
 - **Maps:** Leaflet + react-leaflet with OpenStreetMap tiles
 - **Validation:** Zod (shared by forms and server actions)
+- **AI:** Claude (Anthropic API) for the AI moderator, Find my dive and trip notes, via keyless workload identity federation
+- **Email:** Resend (Top Contributor invitations)
+- **Analytics:** Vercel Web Analytics (cookie-free)
 - **Deployment:** Vercel
 
 ## Quick start (local)
@@ -171,6 +176,7 @@ update public.profiles set is_top_contributor = false, role = 'user' where usern
 - [API](docs/API.md) — public REST endpoints and server actions
 - [Environment variables](docs/ENVIRONMENT.md)
 - [Deployment guide](docs/DEPLOYMENT.md) — Supabase + Vercel
+- [Logo files](brand/README.md): vector logo and mark (SVG and PDF) with colours and usage guidance
 - [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md)
 
 ## Seed data
