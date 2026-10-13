@@ -65,17 +65,25 @@ export default async function ContributorInvitePage({ params }: { params: Promis
                   <p className="text-muted-foreground text-sm">You already have staff access, so only the badge is new.</p>
                 )}
               </div>
-              <form action={respondToInviteAction} className="flex flex-wrap gap-2">
-                <input type="hidden" name="id" value={invite.id} />
-                <Button type="submit" name="decision" value="accept" variant="sponge">
-                  Accept invitation
-                </Button>
-                {invite.status === "pending" && (
-                  <Button type="submit" name="decision" value="decline" variant="ghost">
-                    No thanks
+              {/* One form per choice: server actions don't receive the clicked button's value. */}
+              <div className="flex flex-wrap gap-2">
+                <form action={respondToInviteAction}>
+                  <input type="hidden" name="id" value={invite.id} />
+                  <input type="hidden" name="decision" value="accept" />
+                  <Button type="submit" variant="sponge">
+                    Accept invitation
                   </Button>
+                </form>
+                {invite.status === "pending" && (
+                  <form action={respondToInviteAction}>
+                    <input type="hidden" name="id" value={invite.id} />
+                    <input type="hidden" name="decision" value="decline" />
+                    <Button type="submit" variant="ghost">
+                      No thanks
+                    </Button>
+                  </form>
                 )}
-              </form>
+              </div>
               {invite.status === "declined" && (
                 <p className="text-muted-foreground text-xs">You declined earlier. You can still accept any time.</p>
               )}
