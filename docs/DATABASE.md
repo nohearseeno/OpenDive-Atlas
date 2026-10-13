@@ -192,6 +192,10 @@ The AI moderator runs in the Next.js app with no database role of its own. It ca
 
 `take_recommendation_quota(ip_hash)` enforces the Find my dive limits (10 per visitor per hour, 1,000 per day) using `recommendation_requests`, which only that function can read.
 
+Find my dive answers are cached in `recommendation_results` for 24 hours, keyed by a SHA-256 hash of the normalised query (lower-cased, whitespace collapsed). The table holds what visitors typed, so nobody can read it directly; the app uses `get_cached_recommendation(token, hash)` and `save_recommendation(token, hash, query, result)`, which require the `ai-review` job token. Rows older than two days are purged on each save. Results store site slugs and reasons only, and the app matches them to current site details when showing them.
+
+`recommendation_history` keeps each signed-in diver's own searches with a copy of the result (RLS: own rows only, select/insert/delete). A trigger keeps the 30 most recent per diver.
+
 ### Top Contributor invitations
 
 1. The trigger above creates the invitation.

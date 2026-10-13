@@ -89,7 +89,7 @@ Moderators work in **Admin → Suggestions**:
 - **Dive sites** and **Species** tabs list suggestions. Each shows the AI verdict, with a button to run or re-run the AI review.
 - **Awaiting human check** lists digitally reviewed sites. *Mark human reviewed* completes the second tier; *Unpublish* takes a site down.
 
-Divers can also use **Find my dive** (`/recommend`): describe what you're after ("warm water, sharks, beginner, December") and Claude suggests matching sites from the atlas, limited to 10 requests an hour per visitor.
+Divers can also use **Find my dive** (`/recommend`): describe what you're after ("warm water, sharks, beginner, December") and Claude suggests matching sites from the atlas, limited to 10 requests an hour per visitor. Answers are cached for 24 hours, so a repeated search (or Back from a site page) shows the same results without calling Claude again or using up the limit. Signed-in divers also get their 30 most recent searches saved on the page, and reopening one costs nothing.
 
 Both features need Claude API access, either keyless through workload identity federation (recommended) or with `ANTHROPIC_API_KEY`; the AI moderator also needs `AI_REVIEW_TOKEN`; see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md#ai-features). Without them the site works as before, with human-only review.
 

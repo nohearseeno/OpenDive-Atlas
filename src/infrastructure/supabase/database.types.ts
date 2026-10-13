@@ -328,6 +328,23 @@ export type Database = {
           },
         ];
       };
+      recommendation_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          query: string;
+          result: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          query: string;
+          result: Json;
+        };
+        Update: never;
+        Relationships: [];
+      };
       contributor_invites: {
         Row: {
           id: string;
@@ -524,6 +541,14 @@ export type Database = {
       take_recommendation_quota: {
         Args: { p_ip_hash: string };
         Returns: boolean;
+      };
+      get_cached_recommendation: {
+        Args: { p_token: string; p_hash: string };
+        Returns: Json | null;
+      };
+      save_recommendation: {
+        Args: { p_token: string; p_hash: string; p_query: string; p_result: Json };
+        Returns: undefined;
       };
       respond_contributor_invite: {
         Args: { invite_id: string; accept: boolean };
