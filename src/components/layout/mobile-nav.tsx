@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { UnitsToggle } from "@/components/units/units-toggle";
 import { NAV_LINKS } from "./nav-links";
 
 export function MobileNav({ signedIn, isStaff }: { signedIn: boolean; isStaff: boolean }) {
@@ -46,6 +47,10 @@ export function MobileNav({ signedIn, isStaff }: { signedIn: boolean; isStaff: b
             </Link>
           ))}
         </nav>
+        <div className="bg-reef-hole mx-4 mt-4 flex items-center justify-between rounded-lg px-3 py-2">
+          <span className="text-cream text-sm">Units</span>
+          <UnitsToggle />
+        </div>
       </SheetContent>
     </Sheet>
   );

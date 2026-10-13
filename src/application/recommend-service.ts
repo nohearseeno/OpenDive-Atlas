@@ -11,6 +11,7 @@ import {
   type StoredRecommendation,
 } from "@/infrastructure/repositories/recommendations";
 import type { SupabaseServerClient } from "@/infrastructure/supabase/server";
+import { getUnits } from "./units";
 
 export type QuotaResult = { ok: true } | { ok: false; message: string };
 
@@ -34,8 +35,9 @@ export type RecommendationResult =
  * (shared), so a repeated request costs no tokens and no quota.
  */
 export async function getRecommendation(db: SupabaseServerClient, query: string): Promise<RecommendationResult> {
+  const units = await getUnits();
   try {
-    const cached = await getCachedRecommendation(query);
+    const cached = await getCachedRecommendation(query, units);
     if (cached) return { ok: true, stored: cached, sites: await searchDiveSites(db) };
   } catch (e) {
     console.error("[recommend] cache", e);
@@ -46,9 +48,9 @@ export async function getRecommendation(db: SupabaseServerClient, query: string)
 
   try {
     const sites = await searchDiveSites(db);
-    const stored = toStored(await recommendSites(query, sites));
+    const stored = toStored(await recommendSites(query, sites, units));
     // Don't cache "nothing fits" answers or refusals; a retry might do better.
-    if (stored.picks.length) await cacheRecommendation(query, stored);
+    if (stored.picks.length) await cacheRecommendation(query, stored, units);
     return { ok: true, stored, sites };
   } catch (e) {
     console.error("[recommend]", e);

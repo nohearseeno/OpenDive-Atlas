@@ -4,6 +4,7 @@ import type { DiveSiteSummary } from "@/domain/entities";
 import { createAnonSupabase } from "@/infrastructure/ai/client";
 import type { Recommendation } from "@/infrastructure/ai/recommender";
 import type { Json } from "@/infrastructure/supabase/database.types";
+import type { Units } from "@/lib/units";
 import type { SupabaseServerClient } from "@/infrastructure/supabase/server";
 
 /** What we store: site slugs rather than full site rows, so results always show current site details. */
@@ -81,12 +82,15 @@ export async function cacheJson(key: string, value: object): Promise<void> {
   if (error) console.error("[ai-cache] write:", error.message);
 }
 
-export async function getCachedRecommendation(query: string): Promise<StoredRecommendation | null> {
-  return parseStored(await getCachedJson(query));
+/** Answers mention measurements, so imperial answers are cached separately. */
+const recommendationKey = (query: string, units: Units) => (units === "imperial" ? `${query}\nunits:imperial` : query);
+
+export async function getCachedRecommendation(query: string, units: Units = "metric"): Promise<StoredRecommendation | null> {
+  return parseStored(await getCachedJson(recommendationKey(query, units)));
 }
 
-export async function cacheRecommendation(query: string, result: StoredRecommendation): Promise<void> {
-  await cacheJson(query, result);
+export async function cacheRecommendation(query: string, result: StoredRecommendation, units: Units = "metric"): Promise<void> {
+  await cacheJson(recommendationKey(query, units), result);
 }
 
 // --- Per-diver history (RLS: divers only see their own) ---

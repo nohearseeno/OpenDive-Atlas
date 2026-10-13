@@ -3,7 +3,14 @@ import { z } from "zod";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { DiveSiteSummary } from "@/domain/entities";
 import { DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
+import type { Units } from "@/lib/units";
 import { AI_MODEL, getAnthropic } from "./client";
+
+const UNITS_NOTE: Record<Units, string> = {
+  metric: "Give any depths, visibility and distances in metres or kilometres, and temperatures in °C.",
+  imperial: "The diver uses imperial units: give any depths and visibility in feet, distances in miles and temperatures in °F (convert from the metric values given).",
+};
+
 
 const RecommendationSchema = z.object({
   intro: z.string().describe("One or two friendly sentences summarising what you looked for."),
@@ -53,7 +60,11 @@ function line(s: DiveSiteSummary): string {
 }
 
 /** Asks Claude to pick catalogue sites that match a diver's free-text request. */
-export async function recommendSites(query: string, sites: DiveSiteSummary[]): Promise<Recommendation> {
+export async function recommendSites(
+  query: string,
+  sites: DiveSiteSummary[],
+  units: Units = "metric",
+): Promise<Recommendation> {
   const bySlug = new Map(sites.map((s) => [s.slug, s]));
   // Stable order so the cached prefix stays identical between requests.
   const catalogue = [...sites].sort((a, b) => a.slug.localeCompare(b.slug)).map(line).join("\n");
@@ -68,7 +79,8 @@ export async function recommendSites(query: string, sites: DiveSiteSummary[]): P
       { type: "text", text: SYSTEM },
       { type: "text", text: catalogue, cache_control: { type: "ephemeral" } },
     ],
-    messages: [{ role: "user", content: `<request>\n${query}\n</request>` }],
+    // Units go in the user turn so the cached system prompt stays shared.
+    messages: [{ role: "user", content: `<request>\n${query}\n</request>\n\n${UNITS_NOTE[units]}` }],
   });
 
   if (response.stop_reason === "refusal" || !response.parsed_output) {

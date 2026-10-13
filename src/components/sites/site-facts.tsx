@@ -1,7 +1,8 @@
 import { ArrowDownToLine, Compass, Eye, Gauge, MapPin, Thermometer, Waves, Wind } from "lucide-react";
 import type { DiveSite } from "@/domain/entities";
 import { CURRENT_LABELS, DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
-import { formatCoordinates, formatRange } from "@/lib/utils";
+import { formatCoordinates } from "@/lib/utils";
+import { Measure, MeasureRange } from "@/components/units/measure";
 
 export function SiteFacts({ site }: { site: DiveSite }) {
   const facts = [
@@ -9,9 +10,9 @@ export function SiteFacts({ site }: { site: DiveSite }) {
     { icon: Compass, label: "Coordinates", value: formatCoordinates(site.latitude, site.longitude) },
     { icon: Waves, label: "Dive type", value: site.diveTypes.map((t) => DIVE_TYPE_LABELS[t]).join(", ") },
     { icon: Gauge, label: "Experience level", value: EXPERIENCE_LABELS[site.experienceLevel] },
-    { icon: Eye, label: "Visibility", value: formatRange(site.visibilityM.min, site.visibilityM.max, " m") },
-    { icon: Thermometer, label: "Water temperature", value: formatRange(site.temperatureC.min, site.temperatureC.max, " °C") },
-    { icon: ArrowDownToLine, label: "Maximum depth", value: site.maxDepthM != null ? `${site.maxDepthM} m` : "—" },
+    { icon: Eye, label: "Visibility", value: <MeasureRange q="length" min={site.visibilityM.min} max={site.visibilityM.max} /> },
+    { icon: Thermometer, label: "Water temperature", value: <MeasureRange q="temp" min={site.temperatureC.min} max={site.temperatureC.max} /> },
+    { icon: ArrowDownToLine, label: "Maximum depth", value: <Measure q="length" value={site.maxDepthM} /> },
     { icon: Wind, label: "Typical current", value: CURRENT_LABELS[site.typicalCurrent] },
   ];
   return (

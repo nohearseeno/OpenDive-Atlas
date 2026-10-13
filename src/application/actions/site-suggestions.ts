@@ -19,7 +19,7 @@ import { sendPendingInviteEmails, sendPendingInviteEmailsAsAiModerator } from "@
 import { runAiReview } from "@/infrastructure/ai/moderator";
 import { slugify } from "@/lib/utils";
 import { getSessionUser, isModerator } from "../session";
-import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
+import { fromUnknownError, fromZodError, measure, str, type ActionState } from "../action-state";
 
 function readSiteFields(form: FormData) {
   return siteSuggestionSchema.safeParse({
@@ -30,11 +30,11 @@ function readSiteFields(form: FormData) {
     longitude: str(form, "longitude"),
     diveTypes: form.getAll("diveTypes"),
     experienceLevel: str(form, "experienceLevel"),
-    visibilityMinM: str(form, "visibilityMinM"),
-    visibilityMaxM: str(form, "visibilityMaxM"),
-    tempMinC: str(form, "tempMinC"),
-    tempMaxC: str(form, "tempMaxC"),
-    maxDepthM: str(form, "maxDepthM"),
+    visibilityMinM: measure(form, "visibilityMinM", "length"),
+    visibilityMaxM: measure(form, "visibilityMaxM", "length"),
+    tempMinC: measure(form, "tempMinC", "temp"),
+    tempMaxC: measure(form, "tempMaxC", "temp"),
+    maxDepthM: measure(form, "maxDepthM", "length"),
     typicalCurrent: str(form, "typicalCurrent"),
     description: str(form, "description"),
     accessNotes: str(form, "accessNotes"),

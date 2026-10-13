@@ -1,5 +1,16 @@
 import type { DiveSite, SiteFieldValues } from "@/domain/entities";
 import { CURRENT_LABELS, DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
+import { Measure } from "@/components/units/measure";
+import type { Quantity } from "@/lib/units";
+
+/** Fields stored in metric, shown in the viewer's units. */
+const MEASURED: Partial<Record<keyof SiteFieldValues, Quantity>> = {
+  visibilityMinM: "length",
+  visibilityMaxM: "length",
+  tempMinC: "temp",
+  tempMaxC: "temp",
+  maxDepthM: "length",
+};
 
 const LABELS: Record<keyof SiteFieldValues, string> = {
   name: "Name",
@@ -9,18 +20,20 @@ const LABELS: Record<keyof SiteFieldValues, string> = {
   longitude: "Longitude",
   diveTypes: "Dive types",
   experienceLevel: "Experience level",
-  visibilityMinM: "Visibility min (m)",
-  visibilityMaxM: "Visibility max (m)",
-  tempMinC: "Temp min (°C)",
-  tempMaxC: "Temp max (°C)",
-  maxDepthM: "Max depth (m)",
+  visibilityMinM: "Visibility min",
+  visibilityMaxM: "Visibility max",
+  tempMinC: "Temp min",
+  tempMaxC: "Temp max",
+  maxDepthM: "Max depth",
   typicalCurrent: "Typical current",
   description: "Description",
   accessNotes: "Access notes",
 };
 
-function show(key: keyof SiteFieldValues, value: unknown): string {
+function show(key: keyof SiteFieldValues, value: unknown): React.ReactNode {
   if (value == null || value === "") return "—";
+  const q = MEASURED[key];
+  if (q && typeof value === "number") return <Measure q={q} value={value} />;
   if (key === "diveTypes" && Array.isArray(value)) return value.map((t) => DIVE_TYPE_LABELS[t as keyof typeof DIVE_TYPE_LABELS] ?? t).join(", ");
   if (key === "experienceLevel") return EXPERIENCE_LABELS[value as keyof typeof EXPERIENCE_LABELS] ?? String(value);
   if (key === "typicalCurrent") return CURRENT_LABELS[value as keyof typeof CURRENT_LABELS] ?? String(value);

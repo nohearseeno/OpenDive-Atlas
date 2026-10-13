@@ -6,7 +6,7 @@ import { ReviewBadge } from "./review-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DiveSiteSummary } from "@/domain/entities";
 import { DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
-import { formatRange } from "@/lib/utils";
+import { Measure, MeasureRange } from "@/components/units/measure";
 
 export function SiteCard({ site }: { site: DiveSiteSummary }) {
   return (
@@ -45,12 +45,16 @@ export function SiteCard({ site }: { site: DiveSiteSummary }) {
           <div className="flex items-center gap-1">
             <dt className="sr-only">Max depth</dt>
             <ArrowDownToLine className="size-3.5" aria-hidden />
-            <dd>{site.maxDepthM != null ? `${site.maxDepthM} m` : "—"}</dd>
+            <dd>
+              <Measure q="length" value={site.maxDepthM} />
+            </dd>
           </div>
           <div className="flex items-center gap-1">
             <dt className="sr-only">Visibility</dt>
             <Eye className="size-3.5" aria-hidden />
-            <dd>{formatRange(site.visibilityM.min, site.visibilityM.max, " m")}</dd>
+            <dd>
+              <MeasureRange q="length" min={site.visibilityM.min} max={site.visibilityM.max} />
+            </dd>
           </div>
           <div>
             <dt className="sr-only">Species</dt>

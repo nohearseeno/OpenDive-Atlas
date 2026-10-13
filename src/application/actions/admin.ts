@@ -30,7 +30,7 @@ import {
 import { setSightingStatus } from "@/infrastructure/repositories/sightings";
 import { setReviewStatus } from "@/infrastructure/repositories/reviews";
 import { getSessionUser, isAdmin, isModerator } from "../session";
-import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
+import { fromUnknownError, fromZodError, measure, str, type ActionState } from "../action-state";
 
 const FORBIDDEN: ActionState = { ok: false, message: "Admin access required." };
 
@@ -51,11 +51,11 @@ export async function saveDiveSiteAction(_prev: ActionState, form: FormData): Pr
     longitude: str(form, "longitude"),
     diveTypes: form.getAll("diveTypes"),
     experienceLevel: str(form, "experienceLevel"),
-    visibilityMinM: str(form, "visibilityMinM"),
-    visibilityMaxM: str(form, "visibilityMaxM"),
-    tempMinC: str(form, "tempMinC"),
-    tempMaxC: str(form, "tempMaxC"),
-    maxDepthM: str(form, "maxDepthM"),
+    visibilityMinM: measure(form, "visibilityMinM", "length"),
+    visibilityMaxM: measure(form, "visibilityMaxM", "length"),
+    tempMinC: measure(form, "tempMinC", "temp"),
+    tempMaxC: measure(form, "tempMaxC", "temp"),
+    maxDepthM: measure(form, "maxDepthM", "length"),
     typicalCurrent: str(form, "typicalCurrent"),
     description: str(form, "description"),
     accessNotes: str(form, "accessNotes"),

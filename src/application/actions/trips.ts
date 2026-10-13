@@ -14,6 +14,7 @@ import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { fromUnknownError } from "../action-state";
 import { getRecommendation, takeAiQuota } from "../recommend-service";
 import { getSessionUser } from "../session";
+import { getUnits } from "../units";
 
 export type PlanTripResult = { ok: true; plan: TripPlan; notice?: string } | { ok: false; message: string };
 
@@ -36,7 +37,8 @@ export async function planTripAction(input: TripDraft): Promise<PlanTripResult> 
   });
   if (!picks.length) return { ok: false, message: "None of these sites are in the atlas any more." };
 
-  const plan = buildTripPlan(picks, settings);
+  const units = await getUnits();
+  const plan = buildTripPlan(picks, settings, units);
   if (settings.homeAirport && !plan.home) {
     return { ok: false, message: `We couldn't find an airport with the code ${settings.homeAirport}.` };
   }
@@ -47,6 +49,7 @@ export async function planTripAction(input: TripDraft): Promise<PlanTripResult> 
     home: plan.home?.code ?? null,
     start: settings.startDate || null,
     level: settings.level || null,
+    units,
   })}`;
   const cached = await getCachedJson(key);
   if (cached && typeof cached === "object" && "overview" in cached) {
@@ -56,7 +59,7 @@ export async function planTripAction(input: TripDraft): Promise<PlanTripResult> 
   const quota = await takeAiQuota(db);
   if (!quota.ok) return { ok: true, plan, notice: `${quota.message} Your route is ready without the AI notes.` };
   try {
-    const ai = await writeTripNotes(plan, settings);
+    const ai = await writeTripNotes(plan, settings, units);
     if (ai) await cacheJson(key, ai);
     return { ok: true, plan: { ...plan, ai } };
   } catch (e) {

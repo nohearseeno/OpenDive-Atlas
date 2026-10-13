@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { createSighting, deleteSighting, getSightingOwnerAndPhotos } from "@/infrastructure/repositories/sightings";
 import { createUploadedPhotos, removeStorageObjects } from "@/infrastructure/repositories/photos";
 import { getSessionUser, isModerator } from "../session";
-import { fromUnknownError, fromZodError, str, type ActionState } from "../action-state";
+import { fromUnknownError, fromZodError, measure, str, type ActionState } from "../action-state";
 
 const UPLOAD_PATH = /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|avif)$/;
 
@@ -25,7 +25,7 @@ export async function createSightingAction(_prev: ActionState, form: FormData): 
     speciesId: str(form, "speciesId"),
     observedOn: str(form, "observedOn"),
     quantity: str(form, "quantity") || 1,
-    depthM: str(form, "depthM"),
+    depthM: measure(form, "depthM", "length"),
     notes: str(form, "notes"),
     photoPaths,
   });

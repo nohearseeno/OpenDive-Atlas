@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Measure } from "@/components/units/measure";
 import { Calendar, ArrowDownToLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DiverAvatar, diverName } from "@/components/shared/diver-avatar";
@@ -52,7 +53,7 @@ export function SightingList({
                   </span>
                   {s.depthM != null && (
                     <span className="inline-flex items-center gap-1">
-                      <ArrowDownToLine className="size-3" aria-hidden /> {s.depthM} m
+                      <ArrowDownToLine className="size-3" aria-hidden /> <Measure q="length" value={s.depthM} />
                     </span>
                   )}
                   {showStatus && <StatusBadge status={s.status} />}

@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSessionUser, isModerator } from "@/application/session";
 import { TripHeaderLink } from "@/components/trip/trip-header-link";
+import { UnitsToggle } from "@/components/units/units-toggle";
 import { Logo } from "./logo";
 import { MainNav } from "./main-nav";
 import { MobileNav } from "./mobile-nav";
@@ -18,6 +19,9 @@ export async function SiteHeader() {
         <Logo />
         <MainNav />
         <div className="ml-auto flex items-center gap-2">
+          <div className="hidden sm:block">
+            <UnitsToggle />
+          </div>
           <TripHeaderLink userId={user?.id ?? null} />
           {user ? (
             <>

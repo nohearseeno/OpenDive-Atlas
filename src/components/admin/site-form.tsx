@@ -1,5 +1,6 @@
 "use client";
 
+import { SiteMeasureFields } from "@/components/units/site-measure-fields";
 import { useActionState, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -97,23 +98,7 @@ export function SiteForm({ site }: { site?: DiveSite }) {
         </FormField>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-        <FormField id="visibilityMinM" label="Vis. min (m)" errors={e.visibilityMinM}>
-          <Input id="visibilityMinM" name="visibilityMinM" type="number" step="0.1" min={0} defaultValue={site?.visibilityM.min ?? ""} />
-        </FormField>
-        <FormField id="visibilityMaxM" label="Vis. max (m)" errors={e.visibilityMaxM}>
-          <Input id="visibilityMaxM" name="visibilityMaxM" type="number" step="0.1" min={0} defaultValue={site?.visibilityM.max ?? ""} />
-        </FormField>
-        <FormField id="tempMinC" label="Temp min (°C)" errors={e.tempMinC}>
-          <Input id="tempMinC" name="tempMinC" type="number" step="0.1" defaultValue={site?.temperatureC.min ?? ""} />
-        </FormField>
-        <FormField id="tempMaxC" label="Temp max (°C)" errors={e.tempMaxC}>
-          <Input id="tempMaxC" name="tempMaxC" type="number" step="0.1" defaultValue={site?.temperatureC.max ?? ""} />
-        </FormField>
-        <FormField id="maxDepthM" label="Max depth (m)" errors={e.maxDepthM}>
-          <Input id="maxDepthM" name="maxDepthM" type="number" step="0.1" min={0} defaultValue={site?.maxDepthM ?? ""} />
-        </FormField>
-      </div>
+      <SiteMeasureFields site={site} errors={e} />
 
       <FormField id="description" label="Description" errors={e.description}>
         <Textarea id="description" name="description" rows={6} maxLength={10000} defaultValue={site?.description} />

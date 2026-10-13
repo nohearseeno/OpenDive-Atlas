@@ -14,6 +14,7 @@ import {
   type TripPlan,
   type TripSettings,
 } from "@/domain/itinerary";
+import { formatMeasure, type Units } from "@/lib/units";
 import airportRows from "./airports.json";
 
 // [IATA, name, city, ISO country, lat, lng, size (3 large, 2 medium, 1 small)]
@@ -70,7 +71,6 @@ export function airportOptions(point: GeoPoint): (Airport & { distanceKm: number
   return [best, ...others].map((r) => ({ ...strip(r.a), distanceKm: Math.round(r.d) }));
 }
 
-const km = (n: number) => `${Math.round(n).toLocaleString("en-GB")} km`;
 const airportLabel = (a: Airport) => `${a.city || a.name} (${a.code})`;
 
 function addDays(iso: string, n: number): string {
@@ -83,7 +83,9 @@ function addDays(iso: string, n: number): string {
 export function buildTripPlan(
   picks: { site: DiveSiteSummary; days: number }[],
   settings: TripSettings,
+  units: Units = "metric",
 ): TripPlan {
+  const km = (n: number) => formatMeasure("distance", n, units);
   const home = settings.homeAirport ? findAirport(settings.homeAirport) : null;
   const sites: PlannedSite[] = picks.map(({ site, days }) => ({
     slug: site.slug,
@@ -220,6 +222,7 @@ export function buildTripPlan(
 
   const dated = settings.startDate || null;
   return {
+    units,
     home,
     legs,
     days: days.map((d, i) => ({ ...d, day: i + 1, date: dated ? addDays(dated, i) : null })),

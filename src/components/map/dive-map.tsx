@@ -9,6 +9,8 @@ import type { DiveSiteMarker } from "@/domain/entities";
 import { DIVE_TYPE_LABELS, EXPERIENCE_LABELS } from "@/domain/constants";
 import { addToTripWithToast } from "@/components/trip/add-to-trip-button";
 import { tripActions } from "@/components/trip/trip-store";
+import { useUnits } from "@/components/units/units-provider";
+import { formatMeasure, type Units } from "@/lib/units";
 import { LEVEL_COLORS, TILE_ATTRIBUTION, TILE_URL } from "./map-config";
 
 export interface DiveMapProps {
@@ -59,9 +61,9 @@ function clusterIcon(cluster: L.MarkerCluster) {
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function popupHtml(m: DiveSiteMarker) {
+function popupHtml(m: DiveSiteMarker, units: Units) {
   const types = m.diveTypes.map((t) => DIVE_TYPE_LABELS[t]).join(" · ");
-  const depth = m.maxDepthM != null ? ` · max ${m.maxDepthM} m` : "";
+  const depth = m.maxDepthM != null ? ` · max ${formatMeasure("length", m.maxDepthM, units)}` : "";
   const unverified =
     m.reviewLevel === "human"
       ? ""
@@ -86,6 +88,7 @@ function ClusteredMarkers({
 }: Pick<DiveMapProps, "markers" | "selectedSlug" | "onSelect" | "showPopups" | "fitToMarkers">) {
   const map = useMap();
   const router = useRouter();
+  const { units } = useUnits();
   const groupRef = useRef<L.MarkerClusterGroup | null>(null);
   const bySlug = useRef(new Map<string, L.Marker>());
   const onSelectRef = useRef(onSelect);
@@ -102,7 +105,7 @@ function ClusteredMarkers({
     bySlug.current = new Map();
     for (const m of markers) {
       const marker = L.marker([m.latitude, m.longitude], { icon: markerIcon(m, false), title: m.name, alt: m.name });
-      if (showPopups) marker.bindPopup(popupHtml(m));
+      if (showPopups) marker.bindPopup(popupHtml(m, units));
       marker.on("click", () => onSelectRef.current?.(m.slug));
       bySlug.current.set(m.slug, marker);
       group.addLayer(marker);
@@ -118,7 +121,15 @@ function ClusteredMarkers({
       group.remove();
       groupRef.current = null;
     };
+    // Popups pick up unit changes in the effect below; no need to rebuild here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, markers, showPopups, fitToMarkers]);
+
+  useEffect(() => {
+    if (!showPopups) return;
+    const data = new Map(markers.map((m) => [m.slug, m]));
+    bySlug.current.forEach((marker, slug) => marker.setPopupContent(popupHtml(data.get(slug)!, units)));
+  }, [markers, showPopups, units]);
 
   // "Add to trip" buttons inside popups (plain HTML, so handled by delegation).
   useEffect(() => {
