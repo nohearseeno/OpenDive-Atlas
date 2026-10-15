@@ -110,11 +110,6 @@ export async function updateDiveSite(
   return toDiveSite(data);
 }
 
-export async function deleteDiveSite(db: SupabaseServerClient, id: string): Promise<void> {
-  const { error } = await db.from("dive_sites").delete().eq("id", id);
-  if (error) raise(error, "delete dive site");
-}
-
 /**
  * Species known at a site: the curated list merged with species reported in
  * approved community sightings. Sorted by frequency, then sighting count.

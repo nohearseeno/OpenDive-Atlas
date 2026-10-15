@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, Trash2 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
@@ -8,7 +8,7 @@ import { SiteForm } from "@/components/admin/site-form";
 import { SiteSpeciesManager } from "@/components/admin/site-species-manager";
 import { ExternalPhotoForm } from "@/components/admin/external-photo-form";
 import { isAdmin, requireModerator } from "@/application/session";
-import { deleteDiveSiteAction } from "@/application/actions/admin";
+import { DeleteWithReason } from "@/components/admin/delete-with-reason";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getDiveSiteById, getSiteSpecies } from "@/infrastructure/repositories/dive-sites";
 import { listSpeciesOptions } from "@/infrastructure/repositories/species";
@@ -68,15 +68,21 @@ export default async function EditSitePage({ params }: { params: Promise<{ id: s
             <Card className="border-destructive/40">
               <CardHeader>
                 <CardTitle>Danger zone</CardTitle>
-                <CardDescription>Deleting a site also deletes its sightings, reviews and photos.</CardDescription>
+                <CardDescription>
+                  Deleting a site also deletes its sightings, reviews and photos. Admins can restore it for 14 days.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <form action={deleteDiveSiteAction}>
-                  <input type="hidden" name="id" value={site.id} />
-                  <Button type="submit" variant="destructive">
-                    <Trash2 /> Delete dive site
-                  </Button>
-                </form>
+                <DeleteWithReason
+                  kind="dive_site"
+                  id={site.id}
+                  name={site.name}
+                  consequence="Its sightings, reviews, photos, species links and suggestions are deleted with it."
+                  redirectTo="/admin/sites"
+                  buttonLabel="Delete dive site"
+                  size="default"
+                  variant="destructive"
+                />
               </CardContent>
             </Card>
           </>

@@ -110,6 +110,7 @@ export function toSpecies(row: Tables<"species">): Species {
     category: row.category,
     description: row.description,
     iucnStatus: row.iucn_status,
+    coverPhotoId: row.cover_photo_id ?? null,
   };
 }
 

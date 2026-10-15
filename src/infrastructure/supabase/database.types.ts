@@ -59,6 +59,7 @@ type SpeciesRow = {
   category: Database["public"]["Enums"]["species_category"];
   description: string;
   iucn_status: string | null;
+  cover_photo_id: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -322,6 +323,42 @@ export type Database = {
           {
             foreignKeyName: "species_suggestions_user_id_fkey";
             columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      deletion_log: {
+        Row: {
+          id: string;
+          kind: "species" | "dive_site" | "photo";
+          record_id: string;
+          label: string;
+          reason: string;
+          deleted_by: string | null;
+          deleted_at: string;
+          restore_until: string;
+          snapshot: Json | null;
+          storage_paths: string[];
+          restored_by: string | null;
+          restored_at: string | null;
+          purged_at: string | null;
+        };
+        // Written only by delete_with_log(), restore_deleted() and purge_expired_deletions().
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: "deletion_log_deleted_by_fkey";
+            columns: ["deleted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "deletion_log_restored_by_fkey";
+            columns: ["restored_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -621,6 +658,18 @@ export type Database = {
       save_recommendation: {
         Args: { p_token: string; p_hash: string; p_query: string; p_result: Json };
         Returns: undefined;
+      };
+      delete_with_log: {
+        Args: { p_kind: "species" | "dive_site" | "photo"; p_id: string; p_reason: string };
+        Returns: string;
+      };
+      restore_deleted: {
+        Args: { p_log_id: string };
+        Returns: undefined;
+      };
+      purge_expired_deletions: {
+        Args: Record<string, never>;
+        Returns: string[];
       };
       respond_contributor_invite: {
         Args: { invite_id: string; accept: boolean };

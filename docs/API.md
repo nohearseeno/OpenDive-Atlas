@@ -92,9 +92,9 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `upsertReviewAction` | signed in | siteId, rating{MarineLife,Visibility,Photography,Difficulty}, body, divedOn | Creates or updates the user's single review for a site |
 | `deleteReviewAction` | owner / moderator | id | Deletes review |
 | `saveDiveSiteAction` | moderator | all dive site fields (+ id to update) | Creates/updates a site |
-| `deleteDiveSiteAction` | admin | id | Deletes a site (cascades) |
 | `addSiteSpeciesAction` / `removeSiteSpeciesAction` | admin | siteId, speciesId, frequency, notes | Curates "commonly sighted" list |
-| `saveSpeciesAction` / `deleteSpeciesAction` | admin | species fields (+ id) | Manages species |
+| `saveSpeciesAction` | admin | species fields (+ id) | Creates/updates a species |
+| `setSpeciesCoverAction` | admin | speciesId, photoId (empty = automatic) | Chooses the photo shown on species cards and galleries |
 | `addExternalPhotoAction` | admin | externalUrl, siteId/speciesId, caption, attribution, license, sourceUrl | Adds a licensed reference photo |
 | `suggestSiteEditAction` | signed in | siteId, site fields, note, confirm | Stores only the changed fields as a pending suggestion |
 | `suggestNewSiteAction` | signed in | site fields, note | Stores a pending new-site suggestion |
@@ -110,7 +110,8 @@ type ActionState = { ok: boolean; message?: string; fieldErrors?: Record<string,
 | `unpublishSiteAction` | moderator | siteId | Takes a site off the map |
 | `recommendAction` | anyone (rate-limited) | query | Returns up to six recommended sites with reasons |
 | `moderateAction` | moderator | kind (`sighting`/`review`/`photo`), id, status | Approve / hide content |
-| `deletePhotoAction` | owner / moderator | id | Deletes a photo and its storage object |
+| `deleteWithReasonAction` | admin (species, dive sites) / moderator (photos) | kind, id, reason (5–500 chars), redirectTo | Calls `delete_with_log()`: snapshots the item and everything deleted with it into `deletion_log`, then deletes it |
+| `restoreDeletionAction` | admin | id (deletion_log) | Calls `restore_deleted()`: puts the item and its related rows back, within 14 days |
 
 ### Photo uploads
 

@@ -1,4 +1,4 @@
-import { Star, Trash2 } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
@@ -6,7 +6,8 @@ import { PhotoImage } from "@/components/shared/photo-image";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CuratedPhotoForm } from "@/components/admin/curated-photo-form";
 import { requireAdmin } from "@/application/session";
-import { deletePhotoAction, setPhotoFeaturedAction } from "@/application/actions/admin";
+import { setPhotoFeaturedAction } from "@/application/actions/admin";
+import { DeleteWithReason } from "@/components/admin/delete-with-reason";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { listCuratedPhotos } from "@/infrastructure/repositories/photos";
 import { listSiteOptions } from "@/infrastructure/repositories/dive-sites";
@@ -51,12 +52,7 @@ export default async function AdminPhotosPage() {
                       <Star /> {p.isFeatured ? "Featured" : "Feature"}
                     </Button>
                   </form>
-                  <form action={deletePhotoAction}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <Button type="submit" size="sm" variant="ghost">
-                      <Trash2 /> Delete
-                    </Button>
-                  </form>
+                  <DeleteWithReason kind="photo" id={p.id} name={p.caption ?? p.speciesName ?? p.siteName ?? "Photo"} />
                 </div>
               </li>
             ))}

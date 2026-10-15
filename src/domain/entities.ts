@@ -83,6 +83,8 @@ export interface Species {
   category: SpeciesCategory;
   description: string;
   iucnStatus: string | null;
+  /** Photo chosen for cards and galleries; null = oldest approved photo. */
+  coverPhotoId: string | null;
 }
 
 export interface Photo {
@@ -179,6 +181,25 @@ export interface SiteOption {
   slug: string;
   name: string;
   country: string;
+}
+
+/** Something staff can delete into the 14-day recycle bin. */
+export type DeletableKind = "species" | "dive_site" | "photo";
+
+export interface DeletionLogEntry {
+  id: string;
+  kind: DeletableKind;
+  recordId: string;
+  label: string;
+  reason: string;
+  deletedBy: string | null;
+  deletedAt: string;
+  restoreUntil: string;
+  restoredBy: string | null;
+  restoredAt: string | null;
+  purgedAt: string | null;
+  /** Rows removed with the item, by table (empty once restored or purged). */
+  removed: Record<string, number>;
 }
 
 export interface SpeciesOption {

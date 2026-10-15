@@ -16,7 +16,13 @@ export async function listSitePhotos(db: SupabaseServerClient, siteId: string, l
   return data.map(toPhoto);
 }
 
-export async function listSpeciesPhotos(db: SupabaseServerClient, speciesId: string, limit = 24): Promise<Photo[]> {
+/** Approved photos of a species, oldest first, with the chosen cover (if any) leading. */
+export async function listSpeciesPhotos(
+  db: SupabaseServerClient,
+  speciesId: string,
+  limit = 24,
+  coverPhotoId: string | null = null,
+): Promise<Photo[]> {
   const { data, error } = await db
     .from("photos")
     .select("*")
@@ -24,6 +30,21 @@ export async function listSpeciesPhotos(db: SupabaseServerClient, speciesId: str
     .eq("status", "approved")
     .order("created_at", { ascending: true })
     .limit(limit);
+  if (error) raise(error, "load species photos");
+  const photos = data.map(toPhoto);
+  const cover = photos.findIndex((p) => p.id === coverPhotoId);
+  if (cover > 0) photos.unshift(...photos.splice(cover, 1));
+  return photos;
+}
+
+/** Every photo of a species in any moderation state, oldest first (admin view). */
+export async function listAllSpeciesPhotos(db: SupabaseServerClient, speciesId: string): Promise<Photo[]> {
+  const { data, error } = await db
+    .from("photos")
+    .select("*")
+    .eq("species_id", speciesId)
+    .order("created_at", { ascending: true })
+    .limit(100);
   if (error) raise(error, "load species photos");
   return data.map(toPhoto);
 }
@@ -75,14 +96,6 @@ export async function removeStorageObjects(db: SupabaseServerClient, paths: stri
   if (!paths.length) return;
   const { error } = await db.storage.from(PHOTO_BUCKET).remove(paths);
   if (error) console.error("[photos] failed to remove storage objects", error.message);
-}
-
-export async function deletePhoto(db: SupabaseServerClient, id: string): Promise<void> {
-  const { data, error } = await db.from("photos").select("storage_path").eq("id", id).maybeSingle();
-  if (error) raise(error, "load photo");
-  if (data?.storage_path) await removeStorageObjects(db, [data.storage_path]);
-  const del = await db.from("photos").delete().eq("id", id);
-  if (del.error) raise(del.error, "delete photo");
 }
 
 export async function setPhotoStatus(db: SupabaseServerClient, id: string, status: ModerationStatus): Promise<void> {

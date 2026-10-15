@@ -410,7 +410,9 @@ export default async function ModeratorManualPage() {
           <p className={p}>
             Don&apos;t hide a sighting just because it&apos;s unusual: rare sightings are valuable. If it&apos;s
             surprising but plausible, leave it. Hiding is reversible: <strong>Approve</strong> restores an item.
-            {isAdmin ? " Only admins can delete photos permanently." : ""}
+            {isAdmin
+              ? " Deleting a photo asks for a short reason; deleted species, sites and photos can be restored from Admin → Deleted items for 14 days."
+              : ""}
           </p>
         </Section>
 
