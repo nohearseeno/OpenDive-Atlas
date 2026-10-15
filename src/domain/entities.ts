@@ -83,6 +83,8 @@ export interface Species {
   category: SpeciesCategory;
   description: string;
   iucnStatus: string | null;
+  /** Photo chosen for cards and galleries; null = oldest approved photo. */
+  coverPhotoId: string | null;
 }
 
 export interface Photo {

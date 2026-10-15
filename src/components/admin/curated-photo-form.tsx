@@ -17,7 +17,16 @@ import type { SiteOption, SpeciesOption } from "@/domain/entities";
 const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif" };
 
 /** Upload a credited, separately licensed photo into Storage (site/ folder). */
-export function CuratedPhotoForm({ sites, species }: { sites: SiteOption[]; species: SpeciesOption[] }) {
+export function CuratedPhotoForm({
+  sites,
+  species,
+  defaultSpeciesId = "",
+}: {
+  sites: SiteOption[];
+  species: SpeciesOption[];
+  /** Preselects the species, e.g. when uploading from a species' admin page. */
+  defaultSpeciesId?: string;
+}) {
   const [state, formAction] = useActionState(createCuratedPhotoAction, initialActionState);
   const [pending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
@@ -79,7 +88,7 @@ export function CuratedPhotoForm({ sites, species }: { sites: SiteOption[]; spec
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField id="speciesId" label="Species" errors={e.speciesId}>
-            <NativeSelect id="speciesId" name="speciesId" defaultValue="">
+            <NativeSelect id="speciesId" name="speciesId" defaultValue={defaultSpeciesId}>
               <option value="">None</option>
               {species.map((s) => (
                 <option key={s.id} value={s.id}>

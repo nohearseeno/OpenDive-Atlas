@@ -41,7 +41,7 @@ export default async function SpeciesPage({ params, searchParams }: Props) {
 
   const user = await getSessionUser();
   const [photos, sites, sightings] = await Promise.all([
-    listSpeciesPhotos(db, species.id),
+    listSpeciesPhotos(db, species.id, undefined, species.coverPhotoId),
     getSpeciesSites(db, species.id),
     listSightings(db, { speciesId: species.id, limit: 10 }),
   ]);

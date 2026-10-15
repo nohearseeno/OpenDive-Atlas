@@ -9,6 +9,7 @@ import {
   moderationSchema,
   siteSpeciesSchema,
   speciesSchema,
+  uuidSchema,
 } from "@/domain/schemas";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import {
@@ -18,7 +19,7 @@ import {
   updateDiveSite,
   upsertSiteSpecies,
 } from "@/infrastructure/repositories/dive-sites";
-import { createSpecies, deleteSpecies, updateSpecies } from "@/infrastructure/repositories/species";
+import { createSpecies, deleteSpecies, setSpeciesCoverPhoto, updateSpecies } from "@/infrastructure/repositories/species";
 import {
   createCuratedPhoto,
   createExternalPhoto,
@@ -236,6 +237,22 @@ export async function createCuratedPhotoAction(_prev: ActionState, form: FormDat
   }
   revalidatePath("/", "layout");
   return { ok: true, message: parsed.data.isFeatured ? "Photo added and featured on the homepage." : "Photo added." };
+}
+
+/**
+ * Chooses which photo a species shows on cards and galleries. An empty photoId
+ * goes back to the automatic choice (oldest approved photo). The database
+ * rejects a photo that is not of this species.
+ */
+export async function setSpeciesCoverAction(form: FormData): Promise<void> {
+  const user = await getSessionUser();
+  if (!isAdmin(user)) return;
+  const speciesId = uuidSchema.safeParse(str(form, "speciesId"));
+  const photoId = str(form, "photoId");
+  if (!speciesId.success || (photoId && !uuidSchema.safeParse(photoId).success)) return;
+  const db = await createSupabaseServerClient();
+  await setSpeciesCoverPhoto(db, speciesId.data, photoId || null);
+  revalidatePath("/", "layout");
 }
 
 export async function setPhotoFeaturedAction(form: FormData): Promise<void> {

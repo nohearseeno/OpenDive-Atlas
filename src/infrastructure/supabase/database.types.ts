@@ -59,6 +59,7 @@ type SpeciesRow = {
   category: Database["public"]["Enums"]["species_category"];
   description: string;
   iucn_status: string | null;
+  cover_photo_id: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

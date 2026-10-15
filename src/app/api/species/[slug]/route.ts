@@ -11,7 +11,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const db = await createSupabaseServerClient();
     const species = await getSpeciesBySlug(db, slug);
     if (!species) return null;
-    const [sites, photos] = await Promise.all([getSpeciesSites(db, species.id), listSpeciesPhotos(db, species.id)]);
+    const [sites, photos] = await Promise.all([
+      getSpeciesSites(db, species.id),
+      listSpeciesPhotos(db, species.id, undefined, species.coverPhotoId),
+    ]);
     return { ...species, sites, photos };
   });
 }

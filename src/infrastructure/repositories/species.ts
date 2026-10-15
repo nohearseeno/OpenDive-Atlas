@@ -37,24 +37,41 @@ export async function listSpeciesOptions(db: SupabaseServerClient): Promise<Spec
   return data.map((s) => ({ id: s.id, slug: s.slug, commonName: s.common_name, scientificName: s.scientific_name }));
 }
 
-/** First approved photo per species, for cards and thumbnails. */
+/**
+ * Cover photo per species, for cards, thumbnails and galleries: the photo an
+ * admin chose (species.cover_photo_id) if it is approved, otherwise the oldest
+ * approved photo.
+ */
 export async function getSpeciesCoverPhotos(
   db: SupabaseServerClient,
   speciesIds: string[],
 ): Promise<Map<string, Photo>> {
   const covers = new Map<string, Photo>();
   if (!speciesIds.length) return covers;
-  const { data, error } = await db
-    .from("photos")
-    .select("*")
-    .in("species_id", speciesIds)
-    .eq("status", "approved")
-    .order("created_at", { ascending: true });
-  if (error) raise(error, "load species photos");
-  for (const row of data) {
+  const [photos, chosen] = await Promise.all([
+    db.from("photos").select("*").in("species_id", speciesIds).eq("status", "approved").order("created_at", { ascending: true }),
+    db.from("species").select("id, cover_photo_id").in("id", speciesIds).not("cover_photo_id", "is", null),
+  ]);
+  if (photos.error) raise(photos.error, "load species photos");
+  if (chosen.error) raise(chosen.error, "load species covers");
+  const chosenIds = new Set(chosen.data.map((s) => s.cover_photo_id));
+  for (const row of photos.data) {
+    if (row.species_id && chosenIds.has(row.id)) covers.set(row.species_id, toPhoto(row));
+  }
+  for (const row of photos.data) {
     if (row.species_id && !covers.has(row.species_id)) covers.set(row.species_id, toPhoto(row));
   }
   return covers;
+}
+
+/** Points a species at one of its own photos as its cover (null = automatic). */
+export async function setSpeciesCoverPhoto(
+  db: SupabaseServerClient,
+  speciesId: string,
+  photoId: string | null,
+): Promise<void> {
+  const { error } = await db.from("species").update({ cover_photo_id: photoId }).eq("id", speciesId);
+  if (error) raise(error, "set cover photo");
 }
 
 /** Dive sites where a species is known: curated links merged with community sightings. */
