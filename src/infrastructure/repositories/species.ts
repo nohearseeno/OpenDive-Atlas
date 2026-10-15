@@ -131,11 +131,6 @@ export async function updateSpecies(db: SupabaseServerClient, id: string, input:
   return toSpecies(data);
 }
 
-export async function deleteSpecies(db: SupabaseServerClient, id: string): Promise<void> {
-  const { error } = await db.from("species").delete().eq("id", id);
-  if (error) raise(error, "delete species");
-}
-
 export async function countSpecies(db: SupabaseServerClient): Promise<number> {
   const { count, error } = await db.from("species").select("id", { count: "exact", head: true });
   if (error) raise(error, "count species");

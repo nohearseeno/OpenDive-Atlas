@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, Trash2 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
@@ -9,7 +9,7 @@ import { ExternalPhotoForm } from "@/components/admin/external-photo-form";
 import { CuratedPhotoForm } from "@/components/admin/curated-photo-form";
 import { SpeciesPhotosManager } from "@/components/admin/species-photos-manager";
 import { requireAdmin } from "@/application/session";
-import { deleteSpeciesAction } from "@/application/actions/admin";
+import { DeleteWithReason } from "@/components/admin/delete-with-reason";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { getSpeciesById } from "@/infrastructure/repositories/species";
 import { listAllSpeciesPhotos } from "@/infrastructure/repositories/photos";
@@ -88,15 +88,21 @@ export default async function EditSpeciesPage({ params }: { params: Promise<{ id
         <Card className="border-destructive/40">
           <CardHeader>
             <CardTitle>Danger zone</CardTitle>
-            <CardDescription>Deleting a species also deletes its sightings and photos.</CardDescription>
+            <CardDescription>
+              Deleting a species also deletes its sightings and photos. Admins can restore it for 14 days.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={deleteSpeciesAction}>
-              <input type="hidden" name="id" value={species.id} />
-              <Button type="submit" variant="destructive">
-                <Trash2 /> Delete species
-              </Button>
-            </form>
+            <DeleteWithReason
+              kind="species"
+              id={species.id}
+              name={species.commonName}
+              consequence="Its sightings, photos, site links and suggestions are deleted with it."
+              redirectTo="/admin/species"
+              buttonLabel="Delete species"
+              size="default"
+              variant="destructive"
+            />
           </CardContent>
         </Card>
       </div>

@@ -98,14 +98,6 @@ export async function removeStorageObjects(db: SupabaseServerClient, paths: stri
   if (error) console.error("[photos] failed to remove storage objects", error.message);
 }
 
-export async function deletePhoto(db: SupabaseServerClient, id: string): Promise<void> {
-  const { data, error } = await db.from("photos").select("storage_path").eq("id", id).maybeSingle();
-  if (error) raise(error, "load photo");
-  if (data?.storage_path) await removeStorageObjects(db, [data.storage_path]);
-  const del = await db.from("photos").delete().eq("id", id);
-  if (del.error) raise(del.error, "delete photo");
-}
-
 export async function setPhotoStatus(db: SupabaseServerClient, id: string, status: ModerationStatus): Promise<void> {
   const { error } = await db.from("photos").update({ status }).eq("id", id);
   if (error) raise(error, "moderate photo");

@@ -1,9 +1,10 @@
-import { ExternalLink, Star, Trash2 } from "lucide-react";
+import { ExternalLink, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PhotoImage } from "@/components/shared/photo-image";
 import { EmptyState } from "@/components/shared/empty-state";
-import { deletePhotoAction, setSpeciesCoverAction } from "@/application/actions/admin";
+import { setSpeciesCoverAction } from "@/application/actions/admin";
+import { DeleteWithReason } from "@/components/admin/delete-with-reason";
 import type { Photo, Species } from "@/domain/entities";
 
 /**
@@ -72,12 +73,12 @@ export function SpeciesPhotosManager({ species, photos }: { species: Species; ph
                   </Button>
                 </form>
               )}
-              <form action={deletePhotoAction}>
-                <input type="hidden" name="id" value={p.id} />
-                <Button type="submit" variant="ghost" size="sm" className="text-destructive">
-                  <Trash2 /> Delete
-                </Button>
-              </form>
+              <DeleteWithReason
+                kind="photo"
+                id={p.id}
+                name={p.caption ?? species.commonName}
+                consequence={p.id === coverId ? "This is the cover photo; the next approved photo takes its place." : undefined}
+              />
             </div>
           </li>
         ))}

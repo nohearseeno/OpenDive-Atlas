@@ -1,6 +1,7 @@
-import { Check, EyeOff, Trash2 } from "lucide-react";
+import { Check, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { moderateAction, deletePhotoAction } from "@/application/actions/admin";
+import { moderateAction } from "@/application/actions/admin";
+import { DeleteWithReason } from "@/components/admin/delete-with-reason";
 import type { ModerationStatus } from "@/domain/entities";
 
 export function ModerationActions({
@@ -37,12 +38,7 @@ export function ModerationActions({
         </form>
       )}
       {allowDelete && kind === "photo" && (
-        <form action={deletePhotoAction}>
-          <input type="hidden" name="id" value={id} />
-          <Button type="submit" size="sm" variant="destructive">
-            <Trash2 /> Delete
-          </Button>
-        </form>
+        <DeleteWithReason kind="photo" id={id} name="this photo" variant="destructive" />
       )}
     </div>
   );

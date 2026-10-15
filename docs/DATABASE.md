@@ -21,6 +21,7 @@ PostgreSQL on Supabase. Schema, policies and seed data are version-controlled in
 | `migrations/20261013000018_ai_review_and_recommendations.sql` | `dive_sites.ai_reviewed_at`, AI verdict columns on suggestions, `ai_review_context()` / `apply_ai_review()`, recommendation rate limit |
 | `migrations/20261013000017_maintenance_jobs.sql` | `pg_net`, `maintenance_tokens` for admin-run Edge Functions, service-role access to the role helpers |
 | `migrations/20261015131721_species_cover_photo.sql` | `species.cover_photo_id`: admin-chosen cover photo (must be a photo of that species; falls back to the oldest approved photo) |
+| `migrations/20261015150000_deletion_recycle_bin.sql` | `deletion_log` (admin-readable), `delete_with_log()`, `restore_deleted()`, `purge_expired_deletions()`: staff deletions need a reason and can be restored for 14 days |
 | `seed.sql` | 10 dive sites, 33 species, 64 site–species links, 32 reference photos (idempotent) |
 
 ## ERD

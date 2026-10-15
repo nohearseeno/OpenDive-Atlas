@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
   curatedPhotoSchema,
+  deletionSchema,
   diveSiteSchema,
   externalPhotoSchema,
   moderationSchema,
@@ -14,16 +15,15 @@ import {
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import {
   createDiveSite,
-  deleteDiveSite,
   removeSiteSpecies,
   updateDiveSite,
   upsertSiteSpecies,
 } from "@/infrastructure/repositories/dive-sites";
-import { createSpecies, deleteSpecies, setSpeciesCoverPhoto, updateSpecies } from "@/infrastructure/repositories/species";
+import { createSpecies, setSpeciesCoverPhoto, updateSpecies } from "@/infrastructure/repositories/species";
+import { deleteWithLog, restoreDeletion } from "@/infrastructure/repositories/deletions";
 import {
   createCuratedPhoto,
   createExternalPhoto,
-  deletePhoto,
   removeStorageObjects,
   setPhotoFeatured,
   setPhotoStatus,
@@ -76,15 +76,6 @@ export async function saveDiveSiteAction(_prev: ActionState, form: FormData): Pr
   }
   revalidatePath("/", "layout");
   redirect(`/admin/sites?saved=${encodeURIComponent(slug)}`);
-}
-
-export async function deleteDiveSiteAction(form: FormData): Promise<void> {
-  const user = await getSessionUser();
-  if (!isAdmin(user)) return;
-  const db = await createSupabaseServerClient();
-  await deleteDiveSite(db, str(form, "id"));
-  revalidatePath("/", "layout");
-  redirect("/admin/sites");
 }
 
 export async function addSiteSpeciesAction(_prev: ActionState, form: FormData): Promise<ActionState> {
@@ -143,15 +134,6 @@ export async function saveSpeciesAction(_prev: ActionState, form: FormData): Pro
   redirect(`/admin/species?saved=${encodeURIComponent(parsed.data.slug)}`);
 }
 
-export async function deleteSpeciesAction(form: FormData): Promise<void> {
-  const user = await getSessionUser();
-  if (!isAdmin(user)) return;
-  const db = await createSupabaseServerClient();
-  await deleteSpecies(db, str(form, "id"));
-  revalidatePath("/", "layout");
-  redirect("/admin/species");
-}
-
 // ---------------------------------------------------------------------------
 // Photos (admin-curated, openly licensed external images)
 // ---------------------------------------------------------------------------
@@ -199,13 +181,41 @@ export async function moderateAction(form: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-export async function deletePhotoAction(form: FormData): Promise<void> {
+// ---------------------------------------------------------------------------
+// Deletions (recycle bin): staff give a reason; admins can restore for 14 days
+// ---------------------------------------------------------------------------
+export async function deleteWithReasonAction(_prev: ActionState, form: FormData): Promise<ActionState> {
   const user = await getSessionUser();
-  if (!user) return;
+  if (!isModerator(user)) return { ok: false, message: "Moderator access required." };
+  const parsed = deletionSchema.safeParse({ kind: str(form, "kind"), id: str(form, "id"), reason: str(form, "reason") });
+  if (!parsed.success) return fromZodError(parsed.error);
+  if (parsed.data.kind !== "photo" && !isAdmin(user)) return FORBIDDEN;
   const db = await createSupabaseServerClient();
-  // RLS restricts deletes to the uploader or a moderator.
-  await deletePhoto(db, str(form, "id"));
+  try {
+    await deleteWithLog(db, parsed.data.kind, parsed.data.id, parsed.data.reason);
+  } catch (error) {
+    return fromUnknownError(error);
+  }
   revalidatePath("/", "layout");
+  // Deleting the item a page is about returns to its list.
+  const next = str(form, "redirectTo");
+  if (next.startsWith("/admin/")) redirect(next);
+  return { ok: true, message: "Deleted. Admins can restore it for 14 days." };
+}
+
+export async function restoreDeletionAction(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await getSessionUser();
+  if (!isAdmin(user)) return FORBIDDEN;
+  const id = uuidSchema.safeParse(str(form, "id"));
+  if (!id.success) return { ok: false, message: "Unknown item." };
+  const db = await createSupabaseServerClient();
+  try {
+    await restoreDeletion(db, id.data);
+  } catch (error) {
+    return fromUnknownError(error);
+  }
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Restored." };
 }
 
 // ---------------------------------------------------------------------------

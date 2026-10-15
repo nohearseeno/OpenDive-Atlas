@@ -237,6 +237,16 @@ export const curatedPhotoSchema = z
   })
   .refine((v) => v.siteId || v.speciesId, { message: "Attach the photo to a species or a dive site", path: ["speciesId"] });
 
+/** A staff deletion: what, which one, and why (kept in the deletion log). */
+export const deletionSchema = z.object({
+  kind: z.enum(["species", "dive_site", "photo"]),
+  id: uuidSchema,
+  reason: z.preprocess(
+    trimmed,
+    z.string().min(5, "Give a short reason (at least 5 characters)").max(500, "Keep it under 500 characters"),
+  ),
+});
+
 export const moderationSchema = z.object({
   kind: z.enum(["sighting", "review", "photo"]),
   id: uuidSchema,
