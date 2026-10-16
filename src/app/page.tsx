@@ -87,9 +87,7 @@ export default async function HomePage() {
         />
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 pt-20 pb-28 text-center sm:pt-28 sm:pb-36">
           <h1 className="text-[clamp(2.5rem,7vw,4.75rem)] leading-[1.02] font-semibold drop-shadow-[0_2px_24px_rgba(5,10,30,.5)]">
-            Find a dive site.
-            <br />
-            Meet who lives there.
+            Your next dive is waiting.
           </h1>
           <p className="text-cream/90 max-w-2xl text-base sm:text-lg">
             OpenDive Atlas is an open, community-built map of the world&apos;s dive sites and the marine life seen at each
